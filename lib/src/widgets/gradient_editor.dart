@@ -310,7 +310,9 @@ class _GradientEditorState extends State<GradientEditor> {
                       readOnly: widget.readOnly,
                       padding: gradientBarPadding,
                       onSelect: () {
-                        widget.onStopSelected?.call(i);
+                        widget.onStopSelected?.call(
+                          i == widget.selectedStopIndex ? -1 : i,
+                        );
                       },
                       onSlideStart: () {
                         widget.onChangeStart?.call();
@@ -435,9 +437,9 @@ class _GradientEditorState extends State<GradientEditor> {
             ),
           ),
         ],
-        // Controls for selected stop
-        if (widget.selectedStopIndex >= 0 &&
-            widget.selectedStopIndex < widget.stops.length) ...[
+        // Stop controls stay visible even when no stop is selected; callers can
+        // decide whether the controls should be read-only or use a fallback.
+        if (widget.globalControls != null || widget.stopControls != null) ...[
           if (widget.globalControls != null) ...[
             const SizedBox(height: 16),
             widget.globalControls!,

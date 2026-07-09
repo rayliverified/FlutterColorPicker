@@ -55,16 +55,29 @@ class ColorPickerHomePage extends StatefulWidget {
 
 class _ColorPickerHomePageState extends State<ColorPickerHomePage> {
   final ScrollController _paneScrollController = ScrollController();
+  final PageController _mobilePageController = PageController();
   int _selectedPane = 0;
 
   @override
   void dispose() {
     _paneScrollController.dispose();
+    _mobilePageController.dispose();
     super.dispose();
   }
 
   void _selectPane(int index) {
-    setState(() => _selectedPane = index);
+    if (_selectedPane != index) {
+      setState(() => _selectedPane = index);
+    }
+
+    if (_mobilePageController.hasClients) {
+      _mobilePageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
+    }
+
     if (!_paneScrollController.hasClients) return;
     final maxExtent = _paneScrollController.position.maxScrollExtent;
     final target = _paneScrollOffsets[index].clamp(0.0, maxExtent);
@@ -73,6 +86,11 @@ class _ColorPickerHomePageState extends State<ColorPickerHomePage> {
       duration: const Duration(milliseconds: 320),
       curve: Curves.easeOutCubic,
     );
+  }
+
+  void _handleMobilePageChanged(int index) {
+    if (_selectedPane == index) return;
+    setState(() => _selectedPane = index);
   }
 
   @override
@@ -90,7 +108,13 @@ class _ColorPickerHomePageState extends State<ColorPickerHomePage> {
               onToggleTheme: widget.onToggleTheme,
             ),
             _PaneTabs(selectedIndex: _selectedPane, onChanged: _selectPane),
-            Expanded(child: _PaneCanvas(controller: _paneScrollController)),
+            Expanded(
+              child: _PaneCanvas(
+                controller: _paneScrollController,
+                mobilePageController: _mobilePageController,
+                onMobilePageChanged: _handleMobilePageChanged,
+              ),
+            ),
           ],
         ),
       ),
@@ -133,31 +157,15 @@ class _AppHeader extends StatelessWidget {
             child: Icon(LucideIcons.palette, size: 14, color: primary),
           ),
           const SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Color Picker',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.2,
-                  height: 1.0,
-                  color: SoftSaaSTokens.primaryText(brightness),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Soft SaaS UI demo',
-                style: TextStyle(
-                  fontSize: 10,
-                  letterSpacing: -0.1,
-                  height: 1.0,
-                  color: SoftSaaSTokens.tertiaryText(brightness),
-                ),
-              ),
-            ],
+          Text(
+            'Color Picker',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.2,
+              height: 1.0,
+              color: SoftSaaSTokens.primaryText(brightness),
+            ),
           ),
           const Spacer(),
           SoftSaaSIconButton(
@@ -176,20 +184,20 @@ class _AppHeader extends StatelessWidget {
 
 // ── Workspace panes ──────────────────────────────────────────────────────────
 
+const double _mobilePaneBreakpoint = 600;
 const double _normalPaneWidth = 420;
 const double _widePaneWidth = _normalPaneWidth * 1.5;
-const double _paneGap = 14;
+const double _paneGap = 16;
+const double _panelGap = 16;
+const EdgeInsets _paneContentPadding = EdgeInsets.all(16);
+const EdgeInsets _panelBodyPadding = EdgeInsets.all(12);
 
 const List<double> _paneScrollOffsets = [
   0,
   _normalPaneWidth + _paneGap,
-  _normalPaneWidth + _paneGap + _widePaneWidth + _paneGap,
-  _normalPaneWidth +
-      _paneGap +
-      _widePaneWidth +
-      _paneGap +
-      _normalPaneWidth +
-      _paneGap,
+  (_normalPaneWidth + _paneGap) * 2,
+  (_normalPaneWidth + _paneGap) * 2 + _widePaneWidth + _paneGap,
+  (_normalPaneWidth + _paneGap) * 3 + _widePaneWidth + _paneGap,
 ];
 
 class _PaneTabs extends StatelessWidget {
@@ -211,6 +219,7 @@ class _PaneTabs extends StatelessWidget {
       ),
       child: SoftSaaSTabs(
         tabs: const [
+          SoftSaaSTab(label: 'Popup', subtitle: 'Default embedded picker'),
           SoftSaaSTab(label: 'Picker', subtitle: 'Trigger & row modes'),
           SoftSaaSTab(label: 'Layers', subtitle: 'Paint stack controls'),
           SoftSaaSTab(label: 'Gradient', subtitle: 'Stop editor'),
@@ -224,60 +233,147 @@ class _PaneTabs extends StatelessWidget {
 }
 
 class _PaneCanvas extends StatelessWidget {
-  const _PaneCanvas({required this.controller});
+  const _PaneCanvas({
+    required this.controller,
+    required this.mobilePageController,
+    required this.onMobilePageChanged,
+  });
 
   final ScrollController controller;
+  final PageController mobilePageController;
+  final ValueChanged<int> onMobilePageChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      controller: controller,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: controller,
-        scrollDirection: Axis.horizontal,
-        primary: false,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 22),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _DemoPane(
-              title: 'Picker',
-              subtitle: 'Trigger, inline row, and dialog entry points',
-              icon: LucideIcons.pipette,
-              width: _normalPaneWidth,
-              child: _PickerTab(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < _mobilePaneBreakpoint) {
+          return PageView(
+            controller: mobilePageController,
+            onPageChanged: onMobilePageChanged,
+            children: [
+              _MobilePanePage(child: _fullPickerPane),
+              _MobilePanePage(child: _pickerPane),
+              _MobilePanePage(child: _layersPane),
+              _MobilePanePage(child: _gradientPane),
+              _MobilePanePage(child: _primitivesPane),
+            ],
+          );
+        }
+
+        return Scrollbar(
+          controller: controller,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: controller,
+            scrollDirection: Axis.horizontal,
+            primary: false,
+            padding: _paneContentPadding,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _DemoPane(
+                  title: 'Popup Picker',
+                  subtitle: 'Default embedded picker with dropdown header',
+                  icon: LucideIcons.palette,
+                  width: _normalPaneWidth,
+                  child: _FullPickerTab(),
+                ),
+                SizedBox(width: _paneGap),
+                _DemoPane(
+                  title: 'Picker',
+                  subtitle: 'Trigger, inline row, and dialog entry points',
+                  icon: LucideIcons.pipette,
+                  width: _normalPaneWidth,
+                  child: _PickerTab(),
+                ),
+                SizedBox(width: _paneGap),
+                _DemoPane(
+                  title: 'Layers',
+                  subtitle:
+                      'Paint stack editing, reordering, and blend controls',
+                  icon: LucideIcons.layers,
+                  width: _widePaneWidth,
+                  child: _LayersTab(),
+                ),
+                SizedBox(width: _paneGap),
+                _DemoPane(
+                  title: 'Gradient',
+                  subtitle: 'Stop editing and gradient preview workflows',
+                  icon: LucideIcons.blend,
+                  width: _normalPaneWidth,
+                  child: _GradientTab(),
+                ),
+                SizedBox(width: _paneGap),
+                _DemoPane(
+                  title: 'Primitives',
+                  subtitle: 'Low-level sliders, swatches, inputs, and palettes',
+                  icon: LucideIcons.sliders_horizontal,
+                  width: _normalPaneWidth,
+                  child: _PrimitivesTab(),
+                ),
+              ],
             ),
-            SizedBox(width: _paneGap),
-            _DemoPane(
-              title: 'Layers',
-              subtitle: 'Paint stack editing, reordering, and blend controls',
-              icon: LucideIcons.layers,
-              width: _widePaneWidth,
-              child: _LayersTab(),
-            ),
-            SizedBox(width: _paneGap),
-            _DemoPane(
-              title: 'Gradient',
-              subtitle: 'Stop editing and gradient preview workflows',
-              icon: LucideIcons.blend,
-              width: _normalPaneWidth,
-              child: _GradientTab(),
-            ),
-            SizedBox(width: _paneGap),
-            _DemoPane(
-              title: 'Primitives',
-              subtitle: 'Low-level sliders, swatches, inputs, and palettes',
-              icon: LucideIcons.sliders_horizontal,
-              width: _normalPaneWidth,
-              child: _PrimitivesTab(),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
+
+class _MobilePanePage extends StatelessWidget {
+  const _MobilePanePage({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: _paneContentPadding,
+      child: SizedBox.expand(child: child),
+    );
+  }
+}
+
+const Widget _fullPickerPane = _DemoPane(
+  title: 'Popup Picker',
+  subtitle: 'Default embedded picker with dropdown header',
+  icon: LucideIcons.palette,
+  width: double.infinity,
+  child: _FullPickerTab(),
+);
+
+const Widget _pickerPane = _DemoPane(
+  title: 'Picker',
+  subtitle: 'Trigger, inline row, and dialog entry points',
+  icon: LucideIcons.pipette,
+  width: double.infinity,
+  child: _PickerTab(),
+);
+
+const Widget _layersPane = _DemoPane(
+  title: 'Layers',
+  subtitle: 'Paint stack editing, reordering, and blend controls',
+  icon: LucideIcons.layers,
+  width: double.infinity,
+  child: _LayersTab(),
+);
+
+const Widget _gradientPane = _DemoPane(
+  title: 'Gradient',
+  subtitle: 'Stop editing and gradient preview workflows',
+  icon: LucideIcons.blend,
+  width: double.infinity,
+  child: _GradientTab(),
+);
+
+const Widget _primitivesPane = _DemoPane(
+  title: 'Primitives',
+  subtitle: 'Low-level sliders, swatches, inputs, and palettes',
+  icon: LucideIcons.sliders_horizontal,
+  width: double.infinity,
+  child: _PrimitivesTab(),
+);
 
 class _DemoPane extends StatelessWidget {
   const _DemoPane({
@@ -305,7 +401,6 @@ class _DemoPane extends StatelessWidget {
         decoration: BoxDecoration(
           color: SoftSaaSTokens.primaryBackground(brightness),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: SoftSaaSTokens.primaryBorder(brightness)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -370,6 +465,101 @@ class _DemoPane extends StatelessWidget {
   }
 }
 
+// ── Pane: Full Picker ────────────────────────────────────────────────────────
+
+class _FullPickerTab extends StatefulWidget {
+  const _FullPickerTab();
+
+  @override
+  State<_FullPickerTab> createState() => _FullPickerTabState();
+}
+
+class _FullPickerTabState extends State<_FullPickerTab> {
+  Color _color = const Color(0xFF2196F3);
+  late final RecentColorsManager _recentColorsManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _recentColorsManager = RecentColorsManager.shared;
+    _recentColorsManager.addListener(_handleRecentColorsChanged);
+    _recentColorsManager.loadRecentColors();
+  }
+
+  @override
+  void dispose() {
+    _recentColorsManager.removeListener(_handleRecentColorsChanged);
+    super.dispose();
+  }
+
+  void _handleRecentColorsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  double _panelHeight(double width) {
+    final presetCount =
+        DefaultPresetLibrary.getByName('Codelessly')?.swatches.length ?? 0;
+
+    return ColorPickerPopupHeight.estimate(
+      popupWidth: width,
+      paint: PaintData.solid(color: _color),
+      showRecentColors: true,
+      recentSwatches: _recentColorsManager.swatches,
+      showPresets: true,
+      presetCount: presetCount,
+      usesPresetLibraryDropdown: DefaultPresetLibrary.all.isNotEmpty,
+      readOnly: false,
+      minHeight: 0,
+      maxHeight: double.infinity,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    return SingleChildScrollView(
+      padding: _paneContentPadding,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.hasBoundedWidth
+              ? constraints.maxWidth
+              : 300.0;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: SoftSaaSTokens.primaryBackground(brightness),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: SoftSaaSTokens.primaryBorder(brightness),
+              ),
+            ),
+            child: SizedBox(
+              height: _panelHeight(width),
+              child: ColorPickerPanel(
+                color: _color,
+                onColorChanged: (color) => setState(() => _color = color),
+                onColorChangeEnd: () {
+                  _recentColorsManager.addColor(_color);
+                },
+                recentSwatches: _recentColorsManager.swatches,
+                onRecentSwatchAdd: _recentColorsManager.addSwatch,
+                onRecentSwatchSelected: (swatch) =>
+                    setState(() => _color = swatch.color),
+                showPresetLibrary: true,
+                showPageSwitcher: true,
+                onPresetLibrarySelected: (color) =>
+                    setState(() => _color = color),
+                maxWidth: null,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 // ── Pane: Picker ─────────────────────────────────────────────────────────────
 
 class _PickerTab extends StatelessWidget {
@@ -378,7 +568,7 @@ class _PickerTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: _paneContentPadding,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -390,31 +580,31 @@ class _PickerTab extends StatelessWidget {
                 subtitle: 'Click the color swatch to open a picker popup',
                 icon: LucideIcons.pipette,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  padding: _panelBodyPadding,
                   child: SizedBox(
                     width: double.infinity,
                     child: ColorPickerTriggerDemo(),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: _panelGap),
               SoftSaaSPanel(
                 title: 'Inline Row',
                 subtitle:
                     'Edit hex and opacity inline, click swatch for full picker',
                 icon: LucideIcons.list,
                 child: const Padding(
-                  padding: EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  padding: _panelBodyPadding,
                   child: ColorPickerRowDemo(),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: _panelGap),
               SoftSaaSPanel(
                 title: 'Dialog Mode',
                 subtitle: 'Open a color picker inside a modal dialog',
                 icon: LucideIcons.panel_right,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  padding: _panelBodyPadding,
                   child: SizedBox(
                     width: double.infinity,
                     child: DialogModeDemo(),
@@ -437,7 +627,7 @@ class _LayersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: _paneContentPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -447,17 +637,17 @@ class _LayersTab extends StatelessWidget {
                 'Drag to reorder, tap swatch to pick colors, toggle visibility',
             icon: LucideIcons.layers,
             child: const Padding(
-              padding: EdgeInsets.fromLTRB(12, 4, 12, 12),
+              padding: _panelBodyPadding,
               child: LayersListDemo(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: _panelGap),
           SoftSaaSPanel(
             title: 'Control Panel',
             subtitle: 'Paint type, blend mode, and page switching controls',
             icon: LucideIcons.sliders_horizontal,
             child: const Padding(
-              padding: EdgeInsets.fromLTRB(12, 4, 12, 12),
+              padding: _panelBodyPadding,
               child: LayersControlPanelDemo(),
             ),
           ),
@@ -475,7 +665,7 @@ class _GradientTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: _paneContentPadding,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -484,10 +674,7 @@ class _GradientTab extends StatelessWidget {
             subtitle:
                 'Tap to add stops · drag to move · drag down to delete · Alt+drag to copy',
             icon: LucideIcons.blend,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(12, 4, 12, 12),
-              child: GradientDemo(),
-            ),
+            child: Padding(padding: _panelBodyPadding, child: GradientDemo()),
           ),
         ),
       ),
@@ -543,7 +730,7 @@ class _PrimitivesTabState extends State<_PrimitivesTab> {
       listenable: _recentColorsManager,
       builder: (context, _) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          padding: _paneContentPadding,
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
@@ -555,56 +742,53 @@ class _PrimitivesTabState extends State<_PrimitivesTab> {
                     subtitle: 'Color tile swatches with transparency support',
                     icon: LucideIcons.square,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(12, 4, 12, 12),
+                      padding: _panelBodyPadding,
                       child: ColorFieldSection(),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Hex Input',
                     subtitle: 'Hex color input with optional alpha channel',
                     icon: LucideIcons.hash,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                      padding: _panelBodyPadding,
                       child: HexInputSection(
                         color: _selectedColor,
                         onChanged: (c) => setState(() => _selectedColor = c),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Alpha Input',
                     subtitle: 'Gradient-based opacity drag input',
                     icon: LucideIcons.droplets,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                      padding: _panelBodyPadding,
                       child: AlphaInputSection(
                         color: _selectedColor,
                         onChanged: (c) => setState(() => _selectedColor = c),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Palette',
                     subtitle: 'Saturation/brightness picker canvas',
                     icon: LucideIcons.circle_dot,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                      child: PaletteSection(
-                        paletteColor: _paletteColor,
-                        onChanged: (c) => setState(() => _paletteColor = c),
-                      ),
+                    child: PaletteSection(
+                      paletteColor: _paletteColor,
+                      onChanged: (c) => setState(() => _paletteColor = c),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Rainbow Slider',
                     subtitle: 'Hue selection slider',
                     icon: LucideIcons.sun_dim,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      padding: _panelBodyPadding,
                       child: RainbowSliderSection(
                         rainbowPosition: _rainbowPosition,
                         onPositionChanged: (pos, color) => setState(() {
@@ -614,26 +798,26 @@ class _PrimitivesTabState extends State<_PrimitivesTab> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Alpha Slider',
                     subtitle: 'Opacity slider for the selected color',
                     icon: LucideIcons.blend,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      padding: _panelBodyPadding,
                       child: AlphaSliderSection(
                         color: _selectedColor,
                         onChanged: (c) => setState(() => _selectedColor = c),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Recent Colors',
                     subtitle: 'Persisted recent color swatches',
                     icon: LucideIcons.history,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                      padding: _panelBodyPadding,
                       child: RecentColorsSection(
                         swatches: _recentColorsManager.swatches,
                         onSelected: (swatch) => setState(() {
@@ -643,14 +827,14 @@ class _PrimitivesTabState extends State<_PrimitivesTab> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: _panelGap),
                   SoftSaaSPanel(
                     title: 'Color Presets',
                     subtitle:
                         'Named preset swatches with current color indicator',
                     icon: LucideIcons.bookmark,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                      padding: _panelBodyPadding,
                       child: ColorPresetsSection(
                         presets: _presets,
                         currentColor: _paletteColor,

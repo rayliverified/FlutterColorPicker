@@ -21,13 +21,49 @@ class PaintTypeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final triggerTextStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: 13,
+      height: 1.0,
+      fontWeight: FontWeight.w500,
+      color: colorScheme.onSurface,
+    );
+    final menuItemTextStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: 13,
+      height: 1.2,
+      fontWeight: FontWeight.w400,
+      color: colorScheme.onSurface,
+    );
+    final menuItemStyle = ButtonStyle(
+      foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
+      textStyle: WidgetStatePropertyAll(menuItemTextStyle),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed) ||
+            states.contains(WidgetState.focused)) {
+          return colorScheme.onSurface.withValues(alpha: 0.08);
+        }
+        return null;
+      }),
+      side: const WidgetStatePropertyAll(BorderSide.none),
+      shape: const WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      ),
+      minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+
     return MenuAnchor(
+      style: const MenuStyle(padding: WidgetStatePropertyAll(EdgeInsets.zero)),
       menuChildren: items.map((PaintType type) {
         return MenuItemButton(
+          style: menuItemStyle,
           onPressed: () => onChanged(type),
-          child: Text(
-            type.prettify,
-            style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
+          child: DefaultTextStyle(
+            style: menuItemTextStyle ?? const TextStyle(),
+            child: Text(type.prettify),
           ),
         );
       }).toList(),
@@ -50,21 +86,13 @@ class PaintTypeDropdown extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.5,
-                    ),
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Text(
-                        value.prettify,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      Text(value.prettify, style: triggerTextStyle),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
@@ -80,4 +108,3 @@ class PaintTypeDropdown extends StatelessWidget {
     );
   }
 }
-

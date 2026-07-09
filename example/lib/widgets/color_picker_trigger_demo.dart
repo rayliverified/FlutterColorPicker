@@ -30,7 +30,7 @@ class _ColorPickerTriggerDemoState extends State<ColorPickerTriggerDemo> {
             onPaintChanged: _onPaintChanged,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _TriggerVariant(
           label: 'Recent Colors Only',
           description: 'Shows recent colors, no presets.',
@@ -40,7 +40,7 @@ class _ColorPickerTriggerDemoState extends State<ColorPickerTriggerDemo> {
             showPresets: false,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _TriggerVariant(
           label: 'Presets Only',
           description: 'Shows presets, no recent colors.',
@@ -50,7 +50,7 @@ class _ColorPickerTriggerDemoState extends State<ColorPickerTriggerDemo> {
             showRecentColors: false,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _TriggerVariant(
           label: 'Minimal',
           description: 'Just the color picker, no extras.',
@@ -61,7 +61,7 @@ class _ColorPickerTriggerDemoState extends State<ColorPickerTriggerDemo> {
             showPresets: false,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _TriggerVariant(
           label: 'Custom Size (40×40)',
           description: 'Larger swatch with 8px radius.',
@@ -72,7 +72,7 @@ class _ColorPickerTriggerDemoState extends State<ColorPickerTriggerDemo> {
             borderRadius: 8,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _TriggerVariant(
           label: 'Custom Child Widget',
           description: 'Wrap any widget as the tap target.',
@@ -109,6 +109,7 @@ class _TriggerVariant extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
+            height: 1.0,
             fontWeight: FontWeight.w600,
             color: SoftSaaSTokens.primaryText(brightness),
           ),
@@ -118,6 +119,7 @@ class _TriggerVariant extends StatelessWidget {
           description,
           style: TextStyle(
             fontSize: 11,
+            height: 1.2,
             color: SoftSaaSTokens.tertiaryText(brightness),
           ),
         ),

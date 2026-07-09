@@ -7,25 +7,19 @@ class ColorFieldSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 60),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ColorTile(color: Colors.red, size: 50),
-            const SizedBox(width: 8),
-            ColorTile(color: Colors.green, size: 50),
-            const SizedBox(width: 8),
-            ColorTile(color: Colors.blue, size: 50),
-            const SizedBox(width: 8),
-            ColorTile(
-              color: Colors.yellow.withValues(alpha: 0.5),
-              size: 50,
-            ),
-          ],
-        ),
+    return const SizedBox(
+      height: 50,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ColorTile(color: Colors.red, size: 50),
+          SizedBox(width: 8),
+          ColorTile(color: Colors.green, size: 50),
+          SizedBox(width: 8),
+          ColorTile(color: Colors.blue, size: 50),
+          SizedBox(width: 8),
+          ColorTile(color: Color(0x80FFFF00), size: 50),
+        ],
       ),
     );
   }
@@ -216,11 +210,23 @@ class RecentColorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 60),
+    final displaySwatches = swatches.isEmpty
+        ? [
+            PaintSwatch.fromColor(const Color(0xFFFF5722), label: 'Coral'),
+            PaintSwatch.fromColor(const Color(0xFF2196F3), label: 'Blue'),
+            PaintSwatch.fromColor(const Color(0xFF8B5CF6), label: 'Violet'),
+            PaintSwatch.fromColor(const Color(0x8016A34A), label: 'Green 50%'),
+          ]
+        : swatches;
+
+    return IntrinsicHeight(
       child: SizedBox(
         width: double.infinity,
-        child: RecentColorsView(swatches: swatches, onSelected: onSelected),
+        child: RecentColorsView(
+          swatches: displaySwatches,
+          onSelected: onSelected,
+          applyPadding: false,
+        ),
       ),
     );
   }
@@ -241,14 +247,14 @@ class ColorPresetsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 60),
+    return IntrinsicHeight(
       child: SizedBox(
         width: double.infinity,
         child: ColorPresetsView(
           presets: presets,
           currentSwatch: PaintSwatch.fromColor(currentColor),
           onSelected: onSelected,
+          applyPadding: false,
         ),
       ),
     );

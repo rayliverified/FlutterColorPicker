@@ -14,6 +14,7 @@ import '../models/paint_swatch.dart';
 import 'popup_resize_handle.dart';
 import '../utils/popup_positioning_utils.dart';
 import '../utils/popup_constants.dart';
+import '../utils/color_picker_popup_height.dart';
 import '../utils/recent_colors_manager.dart';
 import '../utils/default_preset_library.dart';
 
@@ -241,7 +242,9 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
     if (mounted) {
       setState(() {
         _loadedRecentSwatches = _recentColorsManager!.swatches;
+        _syncPopupHeightToContent();
       });
+      _overlayEntry?.markNeedsBuild();
     }
   }
 
@@ -268,7 +271,9 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
           if (mounted) {
             setState(() {
               _loadedRecentSwatches = _recentColorsManager!.swatches;
+              _syncPopupHeightToContent();
             });
+            _overlayEntry?.markNeedsBuild();
           }
         });
       }
@@ -339,49 +344,31 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
     return [];
   }
 
-  /// Calculates estimated height based on what sections are shown.
+  /// Calculates popup height from the sections that are actually rendered.
   double _calculateEstimatedHeight() {
-    double baseHeight = 378.0; // Base color picker height
+    final presetLibrary = widget.showPresetLibrary
+        ? (widget.presetLibrary ?? DefaultPresetLibrary.all)
+        : null;
 
-    final bool hasRecentColors =
-        widget.showRecentColors &&
-        _effectiveRecentSwatches != null &&
-        _effectiveRecentSwatches!.isNotEmpty;
-    final bool hasPresets = widget.showPresets && _effectivePresets.isNotEmpty;
+    return ColorPickerPopupHeight.estimate(
+      popupWidth: widget.popupWidth,
+      paint: _effectivePaint,
+      showRecentColors: widget.showRecentColors,
+      recentSwatches: _effectiveRecentSwatches,
+      showPresets: widget.showPresets,
+      presetCount: _effectivePresets.length,
+      hasCreatePresetButton: widget.onCreatePreset != null,
+      usesPresetLibraryDropdown:
+          presetLibrary != null && presetLibrary.isNotEmpty,
+      readOnly: widget.readOnly,
+      minHeight: widget.minHeight,
+      maxHeight: widget.maxHeight,
+    );
+  }
 
-    // Add height for recent colors section (if shown)
-    if (hasRecentColors) {
-      // 8px spacing before + ~60px for recent colors view
-      baseHeight += 68.0;
-    }
-
-    // Add height for presets section (if shown)
-    if (hasPresets) {
-      // 12px spacing before (if recent colors shown) or 0px + ~56px for presets + 8px padding below
-      final spacingBefore = hasRecentColors ? 12.0 : 0.0;
-      baseHeight +=
-          spacingBefore + 56.0 + 8.0; // spacing + presets + padding below
-    }
-
-    // Add compensation for base height reduction (only once, when any section is shown)
-    if (hasRecentColors || hasPresets) {
-      baseHeight +=
-          22.0; // Compensation for base height reduction from 400 to 378
-    }
-
-    // Add height for preset library (if shown)
-    if (widget.showPresetLibrary && widget.presetLibrary != null) {
-      baseHeight += 20.0; // Additional spacing
-    }
-
-    // Remove extra bottom padding when only recent colors are shown (no presets)
-    if (hasRecentColors &&
-        !hasPresets &&
-        !(widget.showPresetLibrary && widget.presetLibrary != null)) {
-      baseHeight -= 12.0; // Remove extra bottom padding (was 20px, now 12px)
-    }
-
-    return baseHeight.clamp(widget.minHeight, widget.maxHeight);
+  void _syncPopupHeightToContent() {
+    if (_popupHeight == null || widget.heightPersistenceKey != null) return;
+    _popupHeight = _calculateEstimatedHeight();
   }
 
   @override
@@ -409,10 +396,9 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
     // Use current state or fall back to widget props
     final currentState = _currentPopupState ?? _createPaintState();
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
+    return Stack(
       children: [
-        Expanded(
+        Positioned.fill(
           child: ColorPickerPanel(
             color: _effectivePaint.color,
             onColorChanged: (Color color) {
@@ -567,43 +553,48 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
             },
           ),
         ),
-        // Resize handle at bottom
-        PopupResizeHandle(
-          onResize: (double deltaHeight) {
-            if (_popupHeight != null && _popupPosition != null) {
-              setState(() {
-                final double newHeight = (_popupHeight! + deltaHeight).clamp(
-                  widget.minHeight,
-                  widget.maxHeight,
-                );
-                _popupHeight = newHeight;
-                // Persist height immediately on resize
-                PopupPositioningUtils.savePersistedHeight(
-                  widget.heightPersistenceKey,
-                  newHeight,
-                );
+        // Resize handle overlays the lower edge instead of consuming a bottom row.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: PopupResizeHandle(
+            onResize: (double deltaHeight) {
+              if (_popupHeight != null && _popupPosition != null) {
+                setState(() {
+                  final double newHeight = (_popupHeight! + deltaHeight).clamp(
+                    widget.minHeight,
+                    widget.maxHeight,
+                  );
+                  _popupHeight = newHeight;
+                  // Persist height immediately on resize
+                  PopupPositioningUtils.savePersistedHeight(
+                    widget.heightPersistenceKey,
+                    newHeight,
+                  );
 
-                // Keep the current position but adjust if it would go off-screen
-                final MediaQueryData mediaQuery = MediaQuery.of(context);
-                final Size screenSize = mediaQuery.size;
+                  // Keep the current position but adjust if it would go off-screen
+                  final MediaQueryData mediaQuery = MediaQuery.of(context);
+                  final Size screenSize = mediaQuery.size;
 
-                // Clamp position to ensure popup stays on screen with new height
-                _popupPosition = Offset(
-                  _clampSafe(
-                    _popupPosition!.dx,
-                    0.0,
-                    screenSize.width - widget.popupWidth,
-                  ),
-                  _clampSafe(
-                    _popupPosition!.dy,
-                    0.0,
-                    screenSize.height - _popupHeight!,
-                  ),
-                );
-              });
-              _overlayEntry?.markNeedsBuild();
-            }
-          },
+                  // Clamp position to ensure popup stays on screen with new height
+                  _popupPosition = Offset(
+                    _clampSafe(
+                      _popupPosition!.dx,
+                      0.0,
+                      screenSize.width - widget.popupWidth,
+                    ),
+                    _clampSafe(
+                      _popupPosition!.dy,
+                      0.0,
+                      screenSize.height - _popupHeight!,
+                    ),
+                  );
+                });
+                _overlayEntry?.markNeedsBuild();
+              }
+            },
+          ),
         ),
       ],
     );
@@ -680,7 +671,9 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
       maxHeight: widget.maxHeight,
     );
     _popupPosition = result.position;
-    _popupHeight = result.adjustedHeight;
+    // Popup sizing is content/default driven. Positioning may clamp where the
+    // popup opens, but it should not shrink the popup height.
+    _popupHeight = requestedHeight;
 
     _overlayEntry = OverlayEntry(
       maintainState: true,
@@ -741,7 +734,8 @@ class _ColorPickerTriggerState extends State<ColorPickerTrigger> {
                               ).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Theme.of(overlayContext).brightness ==
+                                color:
+                                    Theme.of(overlayContext).brightness ==
                                         Brightness.dark
                                     ? const Color(0xFF383838)
                                     : const Color(0xFFE5E7EB),

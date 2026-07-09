@@ -303,7 +303,8 @@ class _ColorPickerState extends State<ColorPicker> {
           // Toolbar (hex/opacity inputs) - shown when showToolbar is true
           if (widget.showToolbar)
             Padding(
-              padding: widget.inputsPadding ??
+              padding:
+                  widget.inputsPadding ??
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: ListenableBuilder(
                 listenable: _dragTick,
@@ -322,10 +323,12 @@ class _ColorPickerState extends State<ColorPicker> {
                             onColorChanged: (Color value) {
                               setState(() {
                                 color = value.withValues(alpha: opacity);
-                                rainbowPosition =
-                                    RainbowSlider.getPosition(color);
-                                rainbowColor =
-                                    RainbowSlider.getColor(rainbowPosition);
+                                rainbowPosition = RainbowSlider.getPosition(
+                                  color,
+                                );
+                                rainbowColor = RainbowSlider.getColor(
+                                  rainbowPosition,
+                                );
                                 palettePosition = Palette.getPosition(color);
                               });
                               widget.onColorChanged(color);
@@ -394,14 +397,14 @@ class _ColorPickerState extends State<ColorPicker> {
                           onPanStart: widget.onColorChangeStart ?? () {},
                           onPositionChanged:
                               (Offset position, Color paletteColor) {
-                            // Add opacity to changed color.
-                            color = paletteColor.withValues(alpha: opacity);
-                            // Save the color palette position.
-                            palettePosition = position;
-                            _tick();
-                            widget.onColorChanged(color);
-                            widget.onPalettePositionChanged?.call(position);
-                          },
+                                // Add opacity to changed color.
+                                color = paletteColor.withValues(alpha: opacity);
+                                // Save the color palette position.
+                                palettePosition = position;
+                                _tick();
+                                widget.onColorChanged(color);
+                                widget.onPalettePositionChanged?.call(position);
+                              },
                           onPanEnd: (Color previousColor, Color updatedColor) {
                             widget.onColorChangeEnd?.call();
                           },
@@ -436,8 +439,10 @@ class _ColorPickerState extends State<ColorPicker> {
                       rainbowColor = rainbow;
                       rainbowPosition = position;
                       // Calculate updated color from rainbow base, palette, and opacity.
-                      color = Palette.getColor(rainbow, palettePosition)
-                          .withValues(alpha: opacity);
+                      color = Palette.getColor(
+                        rainbow,
+                        palettePosition,
+                      ).withValues(alpha: opacity);
                       _tick();
                       widget.onColorChanged(color);
                     },
@@ -596,54 +601,90 @@ class _PaintTypeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final triggerTextStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: 13,
+      height: 1.0,
+      fontWeight: FontWeight.w500,
+      color: colorScheme.onSurface,
+    );
+    final menuItemTextStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: 13,
+      height: 1.2,
+      fontWeight: FontWeight.w400,
+      color: colorScheme.onSurface,
+    );
+    final menuItemStyle = ButtonStyle(
+      foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
+      textStyle: WidgetStatePropertyAll(menuItemTextStyle),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed) ||
+            states.contains(WidgetState.focused)) {
+          return colorScheme.onSurface.withValues(alpha: 0.08);
+        }
+        return null;
+      }),
+      side: const WidgetStatePropertyAll(BorderSide.none),
+      shape: const WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      ),
+      minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+
     return MenuAnchor(
+      style: const MenuStyle(padding: WidgetStatePropertyAll(EdgeInsets.zero)),
       menuChildren: items.map((PaintType type) {
         return MenuItemButton(
+          style: menuItemStyle,
           onPressed: () => onChanged(type),
-          child: Text(
-            type.prettify,
-            style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
+          child: DefaultTextStyle(
+            style: menuItemTextStyle ?? const TextStyle(),
+            child: Text(type.prettify),
           ),
         );
       }).toList(),
       builder:
           (BuildContext context, MenuController controller, Widget? child) {
-        return Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: () {
-              if (controller.isOpen) {
-                controller.close();
-              } else {
-                controller.open();
-              }
-            },
-            borderRadius: BorderRadius.circular(4),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    value.prettify,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                    ),
+            return Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
                   ),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 16,
-                    color: colorScheme.onSurface,
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(value.prettify, style: triggerTextStyle),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 14,
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
     );
   }
 }

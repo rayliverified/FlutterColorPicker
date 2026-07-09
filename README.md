@@ -2,6 +2,10 @@
 
 A modern, comprehensive color picker library for Flutter with support for solid colors, gradients, blend modes, and multi-layer paint management.
 
+## Live Demo
+
+Try the Flutter web example: [fluttercolorpicker.netlify.app](https://fluttercolorpicker.netlify.app/)
+
 ## ✨ Highlights
 
 - **Unified Paint Model** with built-in value equality for effortless state management

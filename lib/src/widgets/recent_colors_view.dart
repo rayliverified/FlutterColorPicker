@@ -58,8 +58,28 @@ class ColorPresetsView extends StatefulWidget {
   /// Called when a preset library entry is selected from dropdown.
   final ValueChanged<PaintSwatch>? onPresetLibrarySelected;
 
-  /// Whether to apply horizontal padding (set to false when parent provides padding).
+  /// Preset library name selected by the parent.
+  ///
+  /// When provided, the inline presets dropdown follows this selection. This is
+  /// used when a swatch is chosen from the library page and the panel returns to
+  /// the editor view.
+  final String? selectedPresetLibraryName;
+
+  /// Called when the inline presets dropdown changes library.
+  final ValueChanged<PresetLibraryEntry>? onPresetLibraryChanged;
+
+  /// Whether to apply component-owned outer padding.
+  ///
+  /// Set to false when the parent already provides padding.
   final bool applyPadding;
+
+  /// Component-owned outer padding when [applyPadding] is true.
+  final EdgeInsets padding;
+
+  /// Whether to show the inline presets label/dropdown above the swatches.
+  ///
+  /// Set to false when embedded in a titled container such as SoftSaaSPanel.
+  final bool showLabel;
 
   const ColorPresetsView({
     super.key,
@@ -73,7 +93,11 @@ class ColorPresetsView extends StatefulWidget {
     this.tileSize = 20,
     this.presetLibrary,
     this.onPresetLibrarySelected,
+    this.selectedPresetLibraryName,
+    this.onPresetLibraryChanged,
     this.applyPadding = true,
+    this.padding = const EdgeInsets.fromLTRB(12, 8, 12, 8),
+    this.showLabel = true,
   });
 
   @override
@@ -93,10 +117,32 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
   @override
   void didUpdateWidget(ColorPresetsView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.selectedPresetLibraryName !=
+            oldWidget.selectedPresetLibraryName &&
+        widget.selectedPresetLibraryName != null) {
+      _selectPresetLibraryByName(widget.selectedPresetLibraryName!);
+      return;
+    }
     // If preset library changed, reload the last selected library
     if (widget.presetLibrary != oldWidget.presetLibrary && !_isInitialized) {
       _loadLastPresetLibrary();
     }
+  }
+
+  void _selectPresetLibraryByName(String name) {
+    if (widget.presetLibrary == null || widget.presetLibrary!.isEmpty) {
+      return;
+    }
+
+    final matchingLibrary = widget.presetLibrary!.firstWhere(
+      (entry) => entry.name == name,
+      orElse: () => widget.presetLibrary!.first,
+    );
+
+    setState(() {
+      _selectedPresetLibrary = matchingLibrary;
+      _isInitialized = true;
+    });
   }
 
   Future<void> _loadLastPresetLibrary() async {
@@ -104,7 +150,9 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
       return;
     }
 
-    final lastLibraryName = await ColorPickerStorage.loadLastPresetLibrary();
+    final lastLibraryName =
+        widget.selectedPresetLibraryName ??
+        await ColorPickerStorage.loadLastPresetLibrary();
     if (lastLibraryName != null && mounted) {
       final matchingLibrary = widget.presetLibrary!.firstWhere(
         (entry) => entry.name == lastLibraryName,
@@ -158,6 +206,7 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         // Presets label with dropdown for preset library
+        if (widget.showLabel) ...[
           if (widget.presetLibrary != null && widget.presetLibrary!.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
@@ -171,6 +220,7 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
                         _selectedPresetLibrary = entry;
                       });
                       _savePresetLibrarySelection(entry);
+                      widget.onPresetLibraryChanged?.call(entry);
                       // Don't auto-select any color when switching preset library
                     },
                     child: SizedBox(
@@ -204,9 +254,9 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
                           },
                           borderRadius: BorderRadius.circular(4),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 0,
-                              vertical: 2,
+                              vertical: widget.applyPadding ? 2 : 0,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -219,6 +269,7 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
                                         alpha: 0.7,
                                       ),
                                       fontSize: 13,
+                                      height: 1.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                     softWrap: true,
@@ -247,69 +298,68 @@ class _ColorPresetsViewState extends State<ColorPresetsView> {
               style: TextStyle(
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
+                height: 1.0,
                 fontWeight: FontWeight.w600,
               ),
             ),
-          const SizedBox(height: 8),
-          RepaintBoundary(
-            child: Wrap(
-              spacing: widget.spacing,
-              runSpacing: widget.spacing,
-              children: [
-                for (final swatch in swatchesToShow)
-                  SizedBox(
-                    width: widget.tileSize,
-                    height: widget.tileSize,
-                    child: ColorTile.fromSwatch(
-                      paintSwatch: swatch,
-                      size: widget.tileSize,
-                      isSelected:
-                          widget.currentSwatch != null &&
-                          _swatchesEqual(swatch, widget.currentSwatch!),
-                      onTap: widget.readOnly
-                          ? null
-                          : () => widget.onSelected(swatch),
-                      showCheckerboard: true,
-                    ),
+          SizedBox(height: widget.applyPadding ? 8 : 6),
+        ],
+        RepaintBoundary(
+          child: Wrap(
+            spacing: widget.spacing,
+            runSpacing: widget.spacing,
+            children: [
+              for (final swatch in swatchesToShow)
+                SizedBox(
+                  width: widget.tileSize,
+                  height: widget.tileSize,
+                  child: ColorTile.fromSwatch(
+                    paintSwatch: swatch,
+                    size: widget.tileSize,
+                    isSelected:
+                        widget.currentSwatch != null &&
+                        _swatchesEqual(swatch, widget.currentSwatch!),
+                    onTap: widget.readOnly
+                        ? null
+                        : () => widget.onSelected(swatch),
+                    showCheckerboard: true,
                   ),
-                if (widget.onCreateNew != null && !widget.readOnly)
-                  SizedBox(
-                    width: widget.tileSize,
-                    height: widget.tileSize,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: widget.onCreateNew,
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.5),
-                              width: 1,
-                            ),
+                ),
+              if (widget.onCreateNew != null && !widget.readOnly)
+                SizedBox(
+                  width: widget.tileSize,
+                  height: widget.tileSize,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: widget.onCreateNew,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.5),
+                            width: 1,
                           ),
-                          child: Icon(
-                            Icons.add,
-                            size: widget.tileSize * 0.6,
-                            color: colorScheme.secondary,
-                          ),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          size: widget.tileSize * 0.6,
+                          color: colorScheme.secondary,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-        ],
-      );
+        ),
+      ],
+    );
 
     // Apply padding only if requested (for standalone use)
     if (widget.applyPadding) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: content,
-      );
+      return Padding(padding: widget.padding, child: content);
     }
     return content;
   }
@@ -349,8 +399,15 @@ class RecentColorsView extends StatelessWidget {
   /// Size of each color tile.
   final double tileSize;
 
-  /// Whether to apply horizontal padding (set to false when parent provides padding).
+  /// Whether to apply component-owned outer padding.
+  ///
+  /// Set to false when the parent already provides padding.
   final bool applyPadding;
+
+  /// Whether to show the inline label above the swatches.
+  ///
+  /// Set to false when embedded in a titled container such as SoftSaaSPanel.
+  final bool showLabel;
 
   const RecentColorsView({
     super.key,
@@ -364,6 +421,7 @@ class RecentColorsView extends StatelessWidget {
     this.spacing = 5,
     this.tileSize = 20,
     this.applyPadding = true,
+    this.showLabel = true,
   });
 
   @override
@@ -378,82 +436,81 @@ class RecentColorsView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(
-          'Recent colors',
-          style: TextStyle(
-            color: colorScheme.onSurface.withValues(alpha: 0.7),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-          const SizedBox(height: 8),
-          if (readOnly && displaySwatches.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'No colors used recently.',
-                style: TextStyle(fontSize: 13, color: colorScheme.secondary),
-              ),
+        if (showLabel) ...[
+          Text(
+            'Recent colors',
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: 13,
+              height: 1.0,
+              fontWeight: FontWeight.w600,
             ),
-          if (!readOnly || displaySwatches.isNotEmpty)
-            RepaintBoundary(
-              child: Wrap(
-                spacing: spacing,
-                runSpacing: spacing,
-                children: [
-                  for (int i = 0; i < displaySwatches.length; i++)
-                    SizedBox(
-                      width: tileSize,
-                      height: tileSize,
-                      child: ColorTile.fromSwatch(
-                        paintSwatch: displaySwatches[i],
-                        size: tileSize,
-                        onTap: readOnly
-                            ? null
-                            : () => onSelected(displaySwatches[i]),
-                        showCheckerboard: true,
-                      ),
+          ),
+          SizedBox(height: applyPadding ? 8 : 6),
+        ],
+        if (readOnly && displaySwatches.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'No colors used recently.',
+              style: TextStyle(fontSize: 13, color: colorScheme.secondary),
+            ),
+          ),
+        if (!readOnly || displaySwatches.isNotEmpty)
+          RepaintBoundary(
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              children: [
+                for (int i = 0; i < displaySwatches.length; i++)
+                  SizedBox(
+                    width: tileSize,
+                    height: tileSize,
+                    child: ColorTile.fromSwatch(
+                      paintSwatch: displaySwatches[i],
+                      size: tileSize,
+                      onTap: readOnly
+                          ? null
+                          : () => onSelected(displaySwatches[i]),
+                      showCheckerboard: true,
                     ),
-                  if (onAddCurrent != null &&
-                      currentSwatch != null &&
-                      !readOnly)
-                    SizedBox(
-                      width: tileSize,
-                      height: tileSize,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => onAddCurrent!(currentSwatch!),
-                          borderRadius: BorderRadius.circular(4),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: colorScheme.outline.withValues(
-                                  alpha: 0.5,
-                                ),
-                                width: 1,
-                              ),
+                  ),
+                if (onAddCurrent != null && currentSwatch != null && !readOnly)
+                  SizedBox(
+                    width: tileSize,
+                    height: tileSize,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => onAddCurrent!(currentSwatch!),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: colorScheme.outline.withValues(alpha: 0.5),
+                              width: 1,
                             ),
-                            child: Icon(
-                              Icons.add,
-                              size: tileSize * 0.6,
-                              color: colorScheme.secondary,
-                            ),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            size: tileSize * 0.6,
+                            color: colorScheme.secondary,
                           ),
                         ),
                       ),
                     ),
-                ],
+                  ),
+              ],
             ),
           ),
-        ],
-      );
+      ],
+    );
 
     // Apply padding only if requested (for standalone use)
     if (applyPadding) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: content,
       );
     }

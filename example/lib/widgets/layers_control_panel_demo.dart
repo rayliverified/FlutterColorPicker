@@ -47,7 +47,7 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         _DemoSection(
           title: '2. With Blend Mode',
@@ -66,7 +66,7 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         _DemoSection(
           title: '3. Full Featured (With Page Switcher)',
@@ -96,19 +96,12 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
                   showDivider: false,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: SoftSaaSTokens.primaryColor(
-                    brightness,
-                  ).withValues(alpha: 0.06),
+                  color: SoftSaaSTokens.secondaryBackground(brightness),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(
-                    color: SoftSaaSTokens.primaryColor(
-                      brightness,
-                    ).withValues(alpha: 0.15),
-                  ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,9 +109,9 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
                     Icon(
                       LucideIcons.info,
                       size: 13,
-                      color: SoftSaaSTokens.primaryColor(brightness),
+                      color: SoftSaaSTokens.tertiaryText(brightness),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Page switcher only appears for color-based paint types (Solid, Linear, Radial, Angular). Switch to Image to see it hide.',
@@ -134,7 +127,7 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         _DemoSection(
           title: '4. Limited Paint Types',
@@ -151,7 +144,7 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         _DemoSection(
           title: '5. Read-Only Mode',
@@ -214,13 +207,14 @@ class _DemoSection extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
+                  height: 1.0,
                   fontWeight: FontWeight.w600,
                   color: SoftSaaSTokens.primaryText(brightness),
                 ),
               ),
             ),
             if (badge != null) ...[
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -246,10 +240,11 @@ class _DemoSection extends StatelessWidget {
           description,
           style: TextStyle(
             fontSize: 11,
+            height: 1.2,
             color: SoftSaaSTokens.tertiaryText(brightness),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         child,
       ],
     );

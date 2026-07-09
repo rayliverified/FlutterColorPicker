@@ -20,7 +20,7 @@ class ColorPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -54,10 +54,7 @@ class ColorPreviewCard extends StatelessWidget {
               child: imageBytes != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.memory(
-                        imageBytes!,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.memory(imageBytes!, fit: BoxFit.cover),
                     )
                   : null,
             ),
@@ -66,9 +63,9 @@ class ColorPreviewCard extends StatelessWidget {
               Text(
                 imageName ?? 'image.png',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 '${(imageBytes!.length / 1024).toStringAsFixed(1)} KB',
@@ -78,9 +75,9 @@ class ColorPreviewCard extends StatelessWidget {
               Text(
                 colorToHex(color, withHashtag: true),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 'Opacity: ${(color.a * 100).round()}%',
@@ -93,4 +90,3 @@ class ColorPreviewCard extends StatelessWidget {
     );
   }
 }
-

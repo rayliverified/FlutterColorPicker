@@ -29,31 +29,32 @@ class _LayersListDemoState extends State<LayersListDemo> {
   List<LayerData> _layers = [
     LayerData(
       id: 'layer-1',
-      name: 'Background',
+      name: 'Ocean Base',
       paintType: PaintType.solid,
-      color: const Color(0xFF2196F3),
+      color: const Color(0xD91E40AF),
       blendMode: BlendModeType.normal,
     ),
     LayerData(
       id: 'layer-2',
-      name: 'Gradient Overlay',
+      name: 'Sunset Wash',
       paintType: PaintType.gradientLinear,
-      color: Colors.purple,
-      blendMode: BlendModeType.multiply,
+      color: const Color(0xFFFFB000),
+      blendMode: BlendModeType.normal,
       gradientStops: const [
-        ColorStop(position: 0.0, color: Colors.purple),
-        ColorStop(position: 1.0, color: Colors.blue),
+        ColorStop(position: 0.0, color: Color(0xFFFFB000)),
+        ColorStop(position: 0.52, color: Color(0xFFFF3D81)),
+        ColorStop(position: 1.0, color: Color(0xFF7C3AED)),
       ],
       selectedStopIndex: 0,
-      gradientAngle: 45.0,
-      gradientOpacity: 0.7,
+      gradientAngle: 35.0,
+      gradientOpacity: 0.78,
     ),
     LayerData(
       id: 'layer-3',
-      name: 'Accent Color',
+      name: 'Mint Accent',
       paintType: PaintType.solid,
-      color: const Color(0xFFFF5722),
-      blendMode: BlendModeType.screen,
+      color: const Color(0xCC00E5A8),
+      blendMode: BlendModeType.normal,
       visible: true,
     ),
   ];
@@ -72,9 +73,11 @@ class _LayersListDemoState extends State<LayersListDemo> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Preview
+            SizedBox(width: 128, child: _LayerPreviewCard(layers: _layers)),
+            const SizedBox(width: 0),
             // Layer list
             Expanded(
-              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -82,11 +85,12 @@ class _LayersListDemoState extends State<LayersListDemo> {
                     'Layer Management',
                     style: TextStyle(
                       fontSize: 12,
+                      height: 1.0,
                       fontWeight: FontWeight.w600,
                       color: SoftSaaSTokens.primaryText(brightness),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   LayersList(
                     layers: _layers,
                     onLayersChanged: _onLayersChanged,
@@ -101,37 +105,73 @@ class _LayersListDemoState extends State<LayersListDemo> {
                     showRecentColors: true,
                     presets: _presets,
                     presetLibrary: _presetLibrary,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 20),
-            // Preview
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Live Preview',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: SoftSaaSTokens.primaryText(brightness),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Center(
-                    child: LayersPreview(
-                      layers: _layers,
-                      size: 160,
-                      borderRadius: 10,
+                    decoration: BoxDecoration(
+                      color: SoftSaaSTokens.primaryBackground(brightness),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: SoftSaaSTokens.primaryBorder(brightness),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LayerPreviewCard extends StatelessWidget {
+  const _LayerPreviewCard({required this.layers});
+
+  final List<LayerData> layers;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Live Preview',
+          style: TextStyle(
+            fontSize: 12,
+            height: 1.0,
+            fontWeight: FontWeight.w600,
+            color: SoftSaaSTokens.primaryText(brightness),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: 112,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: SoftSaaSTokens.secondaryBackground(brightness),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: SoftSaaSTokens.primaryBorder(brightness)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LayersPreview(layers: layers, size: 96, borderRadius: 8),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  '${layers.length} layers',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    height: 1.0,
+                    fontWeight: FontWeight.w500,
+                    color: SoftSaaSTokens.secondaryText(brightness),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

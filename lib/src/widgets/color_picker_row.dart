@@ -171,28 +171,34 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: widget.spacing,
+      runSpacing: 8,
+      crossAxisAlignment: widget.showLabels
+          ? WrapCrossAlignment.end
+          : WrapCrossAlignment.center,
       children: [
         // Color swatch trigger
-        ColorPickerTrigger(
-          color: _currentColor,
-          onPaintChanged: _handlePaintChanged,
-          onPaintChangeStart: widget.onColorChangeStart,
-          onPaintChangeEnd: widget.onColorChangeEnd,
-          size: widget.swatchSize ?? 24,
-          borderRadius: widget.swatchBorderRadius,
-          borderWidth: 1,
-          readOnly: widget.readOnly,
-          allowOpacity: widget.allowOpacity,
-          showRecentColors: widget.showRecentColors,
-          showPresets: widget.showPresets,
-          showPresetLibrary: widget.showPresetLibrary,
-          popupWidth: widget.popupWidth,
-          minHeight: widget.popupMinHeight,
-          maxHeight: widget.popupMaxHeight,
+        Padding(
+          padding: EdgeInsets.only(bottom: widget.showLabels ? 4 : 0),
+          child: ColorPickerTrigger(
+            color: _currentColor,
+            onPaintChanged: _handlePaintChanged,
+            onPaintChangeStart: widget.onColorChangeStart,
+            onPaintChangeEnd: widget.onColorChangeEnd,
+            size: widget.swatchSize ?? 24,
+            borderRadius: widget.swatchBorderRadius,
+            borderWidth: 1,
+            readOnly: widget.readOnly,
+            allowOpacity: widget.allowOpacity,
+            showRecentColors: widget.showRecentColors,
+            showPresets: widget.showPresets,
+            showPresetLibrary: widget.showPresetLibrary,
+            popupWidth: widget.popupWidth,
+            minHeight: widget.popupMinHeight,
+            maxHeight: widget.popupMaxHeight,
+          ),
         ),
-        SizedBox(width: widget.spacing / 2),
 
         // Hex input
         ColorHexInput(
@@ -205,8 +211,6 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
         ),
 
         if (widget.showRGB) ...[
-          SizedBox(width: widget.spacing),
-
           // R input
           _ColorChannelInput(
             label: widget.showLabels ? 'R' : '',
@@ -230,7 +234,6 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
             ],
             keyboardType: TextInputType.number,
           ),
-          SizedBox(width: widget.spacing),
 
           // G input
           _ColorChannelInput(
@@ -255,7 +258,6 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
             ],
             keyboardType: TextInputType.number,
           ),
-          SizedBox(width: widget.spacing),
 
           // B input
           _ColorChannelInput(
@@ -282,9 +284,7 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
           ),
         ],
 
-        if (widget.showAlpha) ...[
-          SizedBox(width: widget.spacing),
-
+        if (widget.showAlpha)
           // A (Alpha) input
           _ColorChannelInput(
             label: widget.showLabels ? 'A' : '',
@@ -308,11 +308,8 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
             ],
             keyboardType: TextInputType.number,
           ),
-        ],
 
-        if (widget.showOpacity) ...[
-          SizedBox(width: widget.spacing),
-
+        if (widget.showOpacity)
           // Opacity percentage display (0-100%)
           SizedBox(
             width: 80,
@@ -328,7 +325,6 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
               showOutline: widget.showOutline,
             ),
           ),
-        ],
       ],
     );
   }
@@ -447,7 +443,7 @@ class _ColorChannelInputState extends State<_ColorChannelInput> {
         : Colors.black.withValues(alpha: 0.15);
     final backgroundColor = isDark
         ? Colors.black.withValues(alpha: 0.3)
-        : Colors.white.withValues(alpha: 0.5);
+        : Colors.white;
 
     return SizedBox(
       width: widget.width,

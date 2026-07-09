@@ -280,7 +280,7 @@ class _ColorHexInputState extends State<ColorHexInput> {
     // Background colors for skeumorphic effect
     final backgroundColor = isDark
         ? Colors.black.withValues(alpha: 0.3)
-        : Colors.white.withValues(alpha: 0.5);
+        : Colors.white;
 
     return Align(
       alignment: Alignment.centerLeft,

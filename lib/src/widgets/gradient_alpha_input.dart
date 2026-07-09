@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 
 /// Alpha/opacity input widget with drag support.
-/// 
+///
 /// This widget provides a numeric input field (0-100%) with horizontal drag support
 /// for adjusting opacity values. It's used for both regular color opacity and global
 /// gradient opacity.
 class GradientAlphaInput extends StatefulWidget {
   /// Current color value (opacity is read from color.a).
   final Color color;
-  
+
   /// Called when value updates (on commit).
   final ValueChanged<Color>? onValueUpdate;
-  
+
   /// Called during drag.
   final ValueChanged<Color>? onDragUpdate;
-  
+
   /// Called when drag ends.
   final VoidCallback? onDragEnd;
-  
+
   /// Whether the input is read-only.
   final bool readOnly;
-  
+
   /// Label text displayed above the input.
   final String label;
-  
+
   /// Label text alignment.
   final TextAlign labelAlignment;
-  
+
   /// Optional focus node for controlling focus.
   final FocusNode? focus;
 
@@ -84,8 +84,9 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
         !_isDragging) {
       final int newPercent = (widget.color.a * 100).round();
       final String currentText = _controller.text;
-      final int? currentPercent =
-          int.tryParse(currentText.replaceAll('%', '').trim());
+      final int? currentPercent = int.tryParse(
+        currentText.replaceAll('%', '').trim(),
+      );
       if (currentPercent != newPercent) {
         _controller.text = '$newPercent%';
       }
@@ -114,10 +115,10 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
         // Clamp to valid range (0-100)
         final clampedValue = numValue.clamp(0, 100);
         final newOpacity = (clampedValue / 100).clamp(0.0, 1.0);
-        
+
         // Update text field with clamped value and % sign
         _controller.text = '${clampedValue.round()}%';
-        
+
         widget.onValueUpdate?.call(widget.color.withValues(alpha: newOpacity));
       } else {
         final opacityPercent = (widget.color.a * 100).round();
@@ -147,25 +148,25 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.black.withValues(alpha: 0.1);
-    
+
     final focusBorderColor = colorScheme.primary;
-    
+
     final hoverBorderColor = isDark
         ? Colors.white.withValues(alpha: 0.25)
         : Colors.black.withValues(alpha: 0.15);
-    
+
     // Background colors for skeumorphic effect
     final backgroundColor = isDark
         ? Colors.black.withValues(alpha: 0.3)
-        : Colors.white.withValues(alpha: 0.5);
+        : Colors.white;
 
     return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: widget.labelAlignment == TextAlign.right
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        spacing: 0,
-        children: [
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: widget.labelAlignment == TextAlign.right
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      spacing: 0,
+      children: [
         if (widget.showLabel)
           Padding(
             padding: const EdgeInsets.only(left: 2, bottom: 4),
@@ -205,9 +206,16 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
                 ? null
                 : (DragUpdateDetails details) {
                     if (_dragStartPosition == null) return;
-                    final delta = (details.globalPosition.dx - _dragStartPosition!.dx) * 0.01;
-                    final newOpacity = (_dragStartValue + delta).clamp(0.0, 1.0);
-                    widget.onDragUpdate?.call(widget.color.withValues(alpha: newOpacity));
+                    final delta =
+                        (details.globalPosition.dx - _dragStartPosition!.dx) *
+                        0.01;
+                    final newOpacity = (_dragStartValue + delta).clamp(
+                      0.0,
+                      1.0,
+                    );
+                    widget.onDragUpdate?.call(
+                      widget.color.withValues(alpha: newOpacity),
+                    );
                     final opacityPercent = (newOpacity * 100).round();
                     _controller.text = '$opacityPercent%';
                   },
@@ -226,21 +234,23 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOut,
                 decoration: BoxDecoration(
-                  color: widget.showOutline || _focusNode.hasFocus || _isDragging
+                  color:
+                      widget.showOutline || _focusNode.hasFocus || _isDragging
                       ? backgroundColor
                       : null,
                   border: Border.all(
                     color: _focusNode.hasFocus
                         ? focusBorderColor
                         : (_isDragging
-                            ? hoverBorderColor
-                            : (widget.showOutline
-                                ? borderColor
-                                : Colors.transparent)),
+                              ? hoverBorderColor
+                              : (widget.showOutline
+                                    ? borderColor
+                                    : Colors.transparent)),
                     width: 1.5,
                   ),
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: widget.showOutline || _focusNode.hasFocus || _isDragging
+                  boxShadow:
+                      widget.showOutline || _focusNode.hasFocus || _isDragging
                       ? [
                           // Outer shadow for depth
                           BoxShadow(
@@ -263,7 +273,10 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
                       : null,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
                   child: IgnorePointer(
                     ignoring: _isDragging || !_focusNode.hasFocus,
                     child: TextField(
@@ -291,11 +304,14 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
                         if (numValue != null) {
                           // Clamp to valid range (0-100)
                           final clampedValue = numValue.clamp(0, 100);
-                          final newOpacity = (clampedValue / 100).clamp(0.0, 1.0);
-                          
+                          final newOpacity = (clampedValue / 100).clamp(
+                            0.0,
+                            1.0,
+                          );
+
                           // Update text field with clamped value and % sign
                           _controller.text = '${clampedValue.round()}%';
-                          
+
                           widget.onValueUpdate?.call(
                             widget.color.withValues(alpha: newOpacity),
                           );
@@ -312,4 +328,3 @@ class _GradientAlphaInputState extends State<GradientAlphaInput> {
     );
   }
 }
-

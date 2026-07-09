@@ -30,7 +30,7 @@ class _ColorPickerRowDemoState extends State<ColorPickerRowDemo> {
             showOpacity: true,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _RowVariant(
           label: 'With Labels',
           description: 'Shows labels above inputs (HEX, Opacity, etc.).',
@@ -42,7 +42,7 @@ class _ColorPickerRowDemoState extends State<ColorPickerRowDemo> {
             showLabels: true,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _RowVariant(
           label: 'Full (RGB + Alpha)',
           description: 'Complete mode with RGB, alpha, labels, and outline.',
@@ -91,6 +91,7 @@ class _RowVariant extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
+                  height: 1.0,
                   fontWeight: FontWeight.w600,
                   color: SoftSaaSTokens.primaryText(brightness),
                 ),
@@ -121,6 +122,7 @@ class _RowVariant extends StatelessWidget {
           description,
           style: TextStyle(
             fontSize: 11,
+            height: 1.2,
             color: SoftSaaSTokens.tertiaryText(brightness),
           ),
         ),

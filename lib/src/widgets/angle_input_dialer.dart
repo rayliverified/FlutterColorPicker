@@ -4,26 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Widget for inputting gradient rotation angle with a visual dialer.
-/// 
+///
 /// This widget provides:
 /// - A circular dialer that can be dragged to set angle
 /// - Number input field for precise angle entry
 /// - Visual representation of the current angle
-/// 
+///
 /// Features modern SaaS styling with polished skeumorphic elements.
 class GradientRotationInput extends StatefulWidget {
   /// Current rotation angle in degrees (0-360).
   final double rotation;
-  
+
   /// Called when angle value is updated (e.g., from number input).
   final ValueChanged<double>? onValueUpdated;
-  
+
   /// Called when angle is being dragged.
   final ValueChanged<double>? onDragUpdate;
-  
+
   /// Called when drag ends.
   final VoidCallback? onDragEnd;
-  
+
   /// Read-only mode.
   final bool readOnly;
 
@@ -61,8 +61,8 @@ class _GradientRotationInputState extends State<GradientRotationInput> {
     // Convert gradient angle to UI angle for display
     double normalizedRot =
         ((widget.rotation < 0 ? widget.rotation + 360 : widget.rotation) + 90) %
-            360;
-    
+        360;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -77,7 +77,7 @@ class _GradientRotationInputState extends State<GradientRotationInput> {
           onDragEnd: widget.onDragEnd,
           suggestedContent: const <String>['0', '30', '45', '60', '90', '180'],
           inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.allow(RegExp(r'^[-+]?\d*$'))
+            FilteringTextInputFormatter.allow(RegExp(r'^[-+]?\d*$')),
           ],
         ),
         const SizedBox(width: 12),
@@ -143,8 +143,9 @@ class AngleInputDialer extends StatefulWidget {
 }
 
 class _AngleInputDialerState extends State<AngleInputDialer> {
-  final GlobalKey circleKey =
-      GlobalKey(debugLabel: 'AngleInputDialerState#circleKey');
+  final GlobalKey circleKey = GlobalKey(
+    debugLabel: 'AngleInputDialerState#circleKey',
+  );
   bool isHovering = false;
   bool isPressing = false;
 
@@ -161,13 +162,13 @@ class _AngleInputDialerState extends State<AngleInputDialer> {
 
   void onPan(Offset localPosition) {
     if (widget.readOnly) return;
-    
+
     isPressing = true;
     isHovering = false;
 
     RenderBox? box = circleKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null) return;
-    
+
     Offset center = Offset(
       ((localPosition.dx / box.size.width) * 2) - 1,
       ((localPosition.dy / box.size.height) * 2) - 1,
@@ -205,7 +206,7 @@ class _AngleInputDialerState extends State<AngleInputDialer> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
-    
+
     return SizedBox.square(
       dimension: widget.size,
       child: MouseRegion(
@@ -223,10 +224,12 @@ class _AngleInputDialerState extends State<AngleInputDialer> {
           onPanUpdate: widget.readOnly
               ? null
               : (DragUpdateDetails details) => onPan(details.localPosition),
-          onPanEnd:
-              widget.readOnly ? null : (DragEndDetails details) => onPanEnd(),
-          onTapUp:
-              widget.readOnly ? null : (TapUpDetails details) => onPanEnd(),
+          onPanEnd: widget.readOnly
+              ? null
+              : (DragEndDetails details) => onPanEnd(),
+          onTapUp: widget.readOnly
+              ? null
+              : (TapUpDetails details) => onPanEnd(),
           onTapDown: widget.readOnly
               ? null
               : (TapDownDetails details) => onPan(details.localPosition),
@@ -269,8 +272,8 @@ class _AngleInputDialerState extends State<AngleInputDialer> {
                 angleArcColor: (isHovering || isPressing)
                     ? colorScheme.primary.withValues(alpha: 0.15)
                     : (isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.05)),
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.05)),
                 isDark: isDark,
                 isActive: isHovering || isPressing,
               ),
@@ -301,7 +304,7 @@ class RotationAnglePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Offset center = Offset(size.width / 2.0, size.height / 2.0);
     final radius = size.width / 2;
-    
+
     // Draw background with raised edge shadow bands using radial gradient
     final backgroundPaint = Paint()
       ..shader = RadialGradient(
@@ -330,9 +333,9 @@ class RotationAnglePainter extends CustomPainter {
               ],
         stops: const [0.0, 0.78, 0.88, 0.94, 1.0],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
-    
+
     canvas.drawCircle(center, radius, backgroundPaint);
-    
+
     // Paint for the angle arc fill
     final arcPaint = Paint()
       ..color = angleArcColor
@@ -373,64 +376,69 @@ class RotationAnglePainter extends CustomPainter {
     }
 
     /// Draw the angle indicator line
-    final lineEndPoint = center +
+    final lineEndPoint =
+        center +
         Offset(
           (size.width / 2.0 - 4) * cos(angle - pi / 2),
           (size.height / 2.0 - 4) * sin(angle - pi / 2),
         );
-    
+
     canvas.drawLine(center, lineEndPoint, angleLinePaint);
 
     /// Draw center dot with subtle shadow for depth
     final centerDotPaint = Paint()
       ..color = lineColor
       ..style = PaintingStyle.fill;
-    
+
     // Shadow for center dot
     final shadowPaint = Paint()
       ..color = isDark
           ? Colors.black.withValues(alpha: 0.4)
           : Colors.black.withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
-    
+
     canvas.drawCircle(center + const Offset(0, 0.5), 3.5, shadowPaint);
     canvas.drawCircle(center, 3.5, centerDotPaint);
-    
+
     /// Draw end indicator circle for better visibility
     final endIndicatorPaint = Paint()
       ..color = lineColor
       ..style = PaintingStyle.fill;
-    
+
     final endIndicatorShadowPaint = Paint()
       ..color = isDark
           ? Colors.black.withValues(alpha: 0.4)
           : Colors.black.withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
-    
-    canvas.drawCircle(lineEndPoint + const Offset(0, 0.5), 3, endIndicatorShadowPaint);
+
+    canvas.drawCircle(
+      lineEndPoint + const Offset(0, 0.5),
+      3,
+      endIndicatorShadowPaint,
+    );
     canvas.drawCircle(lineEndPoint, 3, endIndicatorPaint);
-    
+
     // Inner circle for depth on end indicator
     final innerCirclePaint = Paint()
       ..color = isDark
           ? Colors.white.withValues(alpha: 0.3)
           : Colors.white.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
-    
-    canvas.drawCircle(lineEndPoint - const Offset(0.5, 0.5), 1.5, innerCirclePaint);
-    
+
+    canvas.drawCircle(
+      lineEndPoint - const Offset(0.5, 0.5),
+      1.5,
+      innerCirclePaint,
+    );
+
     // Highlight on center dot for skeumorphic effect - always visible
     final centerShinePaint = Paint()
       ..color = isDark
           ? Colors.white.withValues(alpha: 0.25)
           : Colors.white.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
-    
-    canvas.drawCircle(
-      center - const Offset(1, 1),
-      1.3,
-      centerShinePaint,
-    );
+
+    canvas.drawCircle(center - const Offset(1, 1), 1.3, centerShinePaint);
   }
 
   @override
@@ -444,7 +452,7 @@ class RotationAnglePainter extends CustomPainter {
 }
 
 /// Modern number input widget for angle entry with drag-to-adjust functionality.
-/// 
+///
 /// Features:
 /// - Text input with validation
 /// - Horizontal drag to adjust value
@@ -494,7 +502,9 @@ class _NumberInputState extends State<_NumberInput> {
   @override
   void didUpdateWidget(_NumberInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value && !_focusNode.hasFocus && !_isDragging) {
+    if (widget.value != oldWidget.value &&
+        !_focusNode.hasFocus &&
+        !_isDragging) {
       _controller.text = widget.value.toString();
     }
   }
@@ -519,10 +529,10 @@ class _NumberInputState extends State<_NumberInput> {
         // For very large values, use modulo to wrap around
         final normalized = value % 360;
         final clampedValue = normalized < 0 ? normalized + 360 : normalized;
-        
+
         // Update text field with clamped value
         _controller.text = clampedValue.round().toString();
-        
+
         widget.onValueUpdate?.call(clampedValue);
       } else {
         _controller.text = widget.value.toString();
@@ -547,7 +557,7 @@ class _NumberInputState extends State<_NumberInput> {
 
   void _handleDragUpdate(DragUpdateDetails details) {
     if (!_isDragging || widget.readOnly) return;
-    
+
     final delta = details.globalPosition - _dragStartPosition!;
     final newValue = _dragStartValue! + delta.dx * 0.5; // Adjust sensitivity
     widget.onDragUpdate?.call(newValue);
@@ -567,23 +577,23 @@ class _NumberInputState extends State<_NumberInput> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
-    
+
     // Modern border colors following style guide
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.black.withValues(alpha: 0.1);
-    
+
     final focusBorderColor = colorScheme.primary;
-    
+
     final hoverBorderColor = isDark
         ? Colors.white.withValues(alpha: 0.25)
         : Colors.black.withValues(alpha: 0.15);
-    
+
     // Background colors for skeumorphic effect
     final backgroundColor = isDark
         ? Colors.black.withValues(alpha: 0.3)
-        : Colors.white.withValues(alpha: 0.5);
-    
+        : Colors.white;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +635,6 @@ class _NumberInputState extends State<_NumberInput> {
                 ),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
-                  // Outer shadow for depth
                   BoxShadow(
                     color: isDark
                         ? Colors.black.withValues(alpha: 0.3)
@@ -633,7 +642,6 @@ class _NumberInputState extends State<_NumberInput> {
                     blurRadius: 2,
                     offset: const Offset(0, 1),
                   ),
-                  // Inner highlight for skeumorphic effect
                   if (!_isDragging && !_focusNode.hasFocus)
                     BoxShadow(
                       color: isDark
@@ -664,9 +672,12 @@ class _NumberInputState extends State<_NumberInput> {
                           color: isDark ? Colors.white : Colors.black,
                         ),
                         decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.zero,
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
                           isDense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                         onSubmitted: (value) {
                           final numValue = num.tryParse(value);
@@ -674,11 +685,13 @@ class _NumberInputState extends State<_NumberInput> {
                             // Normalize angle to 0-360 range (handles negative and large values)
                             // For very large values, use modulo to wrap around
                             final normalized = numValue % 360;
-                            final clampedValue = normalized < 0 ? normalized + 360 : normalized;
-                            
+                            final clampedValue = normalized < 0
+                                ? normalized + 360
+                                : normalized;
+
                             // Update text field with clamped value
                             _controller.text = clampedValue.round().toString();
-                            
+
                             widget.onValueUpdate?.call(clampedValue);
                           }
                         },
@@ -702,4 +715,3 @@ class _NumberInputState extends State<_NumberInput> {
     );
   }
 }
-

@@ -231,6 +231,7 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
   late PaintState _paintState;
   late int _currentPageIndex;
   int? _localSelectedStopIndex;
+  String? _selectedPresetLibraryName;
 
   /// Creates a PaintState from current widget properties.
   PaintState _createPaintStateFromWidget() {
@@ -863,8 +864,6 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
             applyPadding: widget.contentPadding == null,
           ),
         ],
-        // Spacing before presets/preset library
-        if (widget.showPresets) const SizedBox(height: 12),
         // Presets
         if (widget.showPresets) ...[
           ColorPresetsView(
@@ -881,10 +880,18 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
                 ? (PaintSwatch swatch) =>
                       _applySwatch(swatch, notifyPresetLibrary: true)
                 : null,
+            selectedPresetLibraryName: _selectedPresetLibraryName,
+            onPresetLibraryChanged: (PresetLibraryEntry entry) {
+              setState(() {
+                _selectedPresetLibraryName = entry.name;
+              });
+            },
             // Disable padding if parent provides contentPadding
             applyPadding: widget.contentPadding == null,
+            padding: widget.showRecentColors && widget.recentSwatches != null
+                ? const EdgeInsets.fromLTRB(12, 4, 12, 8)
+                : const EdgeInsets.fromLTRB(12, 8, 12, 8),
           ),
-          const SizedBox(height: 8), // Padding below presets
         ],
       ],
     );
@@ -892,21 +899,22 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
 
   /// Builds the color picker for editing a selected gradient stop's color.
   Widget? _buildStopColorPicker(List<ColorStop> effectiveStops) {
-    final selectedIndex = _localSelectedStopIndex ?? 0;
-    if (selectedIndex < 0 || selectedIndex >= effectiveStops.length) {
-      return null;
-    }
+    if (effectiveStops.isEmpty) return null;
 
-    final selectedStop = effectiveStops[selectedIndex];
+    final selectedIndex = _localSelectedStopIndex ?? 0;
+    final hasSelectedStop =
+        selectedIndex >= 0 && selectedIndex < effectiveStops.length;
+    final effectiveSelectedIndex = hasSelectedStop ? selectedIndex : 0;
+    final selectedStop = effectiveStops[effectiveSelectedIndex];
 
     return ColorPicker(
-      key: ValueKey('stop_color_picker_$selectedIndex'),
+      key: ValueKey('stop_color_picker_$effectiveSelectedIndex'),
       color: selectedStop.color,
       paintType: PaintType.solid, // Stop color picker is always in solid mode
       onColorChanged: (Color color) {
         // Update the selected stop's color in paint state
         final currentStops = _paintState.gradientStops ?? effectiveStops;
-        if (selectedIndex >= 0 && selectedIndex < currentStops.length) {
+        if (hasSelectedStop && selectedIndex < currentStops.length) {
           final newStops = [...currentStops];
           newStops[selectedIndex] = ColorStop(
             position: newStops[selectedIndex].position,
@@ -926,7 +934,7 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
       showRecentColors: false,
       showPresets: false,
       showPresetLibrary: false,
-      readOnly: widget.readOnly,
+      readOnly: widget.readOnly || !hasSelectedStop,
       inputsPadding: widget.inputsPadding,
       slidersPadding:
           widget.slidersPadding ??
@@ -1076,10 +1084,18 @@ class _ColorPickerPanelState extends State<ColorPickerPanel> {
                                   isSelected: _getCurrentSwatch() == swatch,
                                   onTap: widget.readOnly
                                       ? null
-                                      : () => _applySwatch(
-                                          swatch,
-                                          notifyPresetLibrary: true,
-                                        ),
+                                      : () {
+                                          setState(() {
+                                            _selectedPresetLibraryName =
+                                                entry.name;
+                                            _currentPageIndex = 0;
+                                          });
+                                          widget.onPageChanged?.call(0);
+                                          _applySwatch(
+                                            swatch,
+                                            notifyPresetLibrary: true,
+                                          );
+                                        },
                                   showCheckerboard:
                                       false, // Disable for small tiles in grid
                                 ),

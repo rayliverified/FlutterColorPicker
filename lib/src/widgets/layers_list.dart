@@ -257,9 +257,7 @@ class _LayerListItemState extends State<_LayerListItem> {
   /// Returns background color matching modern storybook style.
   Color? _getBackgroundColor(BuildContext context) {
     if (widget.isSelected) {
-      return Theme.of(
-        context,
-      ).colorScheme.primaryContainer.withValues(alpha: 0.3);
+      return Theme.of(context).colorScheme.primary.withValues(alpha: 0.12);
     }
     return Theme.of(context).colorScheme.surface;
   }
@@ -283,100 +281,104 @@ class _LayerListItemState extends State<_LayerListItem> {
 
     return Material(
       color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.zero,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-          height: 44,
-          padding: widget.itemPadding,
-          decoration: BoxDecoration(
-            color: _getBackgroundColor(context),
-            borderRadius: BorderRadius.zero,
-          ),
-          child: Row(
-            children: [
-              // Drag handle (only if reorder is enabled)
-              if (widget.enableReorder) ...[
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: ReorderableDragStartListener(
-                    index: widget.index,
-                    child: Icon(
-                      Icons.drag_indicator,
-                      size: 16,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : Colors.black.withValues(alpha: 0.7),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(7),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            height: 44,
+            padding: widget.itemPadding,
+            decoration: BoxDecoration(
+              color: _getBackgroundColor(context),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Row(
+              children: [
+                // Drag handle (only if reorder is enabled)
+                if (widget.enableReorder) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: ReorderableDragStartListener(
+                      index: widget.index,
+                      child: Icon(
+                        Icons.drag_indicator,
+                        size: 16,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white.withValues(alpha: 0.7)
+                            : Colors.black.withValues(alpha: 0.7),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              // Color swatch (for solid and gradient layers)
-              if (canShowColorSwatch) ...[
-                ColorPickerTrigger(
-                  paint: widget.layer.toPaint(),
-                  onPaintChanged: (paint) {
-                    widget.onLayerUpdated(widget.layer.withPaint(paint));
-                  },
-                  showBlendMode: true,
-                  showPageSwitcher: true,
-                  showRecentColors: widget.showRecentColors,
-                  presets: widget.presets,
-                  showPresetLibrary: widget.presetLibrary != null,
-                  presetLibrary: widget.presetLibrary,
-                ),
-                const SizedBox(width: 8),
-              ],
-              // Layer name
-              Expanded(
-                child: Text(
-                  widget.layer.name,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: _getTextColor(context),
-                    fontWeight: widget.isSelected
-                        ? FontWeight.w600
-                        : FontWeight.w500,
-                    fontSize: 12,
+                  const SizedBox(width: 8),
+                ],
+                // Color swatch (for solid and gradient layers)
+                if (canShowColorSwatch) ...[
+                  ColorPickerTrigger(
+                    paint: widget.layer.toPaint(),
+                    onPaintChanged: (paint) {
+                      widget.onLayerUpdated(widget.layer.withPaint(paint));
+                    },
+                    showBlendMode: true,
+                    showPageSwitcher: true,
+                    showRecentColors: widget.showRecentColors,
+                    presets: widget.presets,
+                    showPresetLibrary: widget.presetLibrary != null,
+                    presetLibrary: widget.presetLibrary,
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 8),
+                ],
+                // Layer name
+                Expanded(
+                  child: Text(
+                    widget.layer.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: _getTextColor(context),
+                      fontWeight: widget.isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              // Visibility toggle button (only if enabled)
-              if (widget.enableVisibility)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4, left: 8),
-                  child: Tooltip(
-                    message: widget.layer.visible ? 'Hide' : 'Show',
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(4),
-                      onTap: () {
-                        widget.onLayerUpdated(
-                          widget.layer.copyWith(visible: !widget.layer.visible),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          widget.layer.visible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: widget.layer.visible
-                              ? Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5)
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.3),
-                          size: 14,
+                // Visibility toggle button (only if enabled)
+                if (widget.enableVisibility)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4, left: 8),
+                    child: Tooltip(
+                      message: widget.layer.visible ? 'Hide' : 'Show',
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(4),
+                        onTap: () {
+                          widget.onLayerUpdated(
+                            widget.layer.copyWith(
+                              visible: !widget.layer.visible,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            widget.layer.visible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: widget.layer.visible
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.5)
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.3),
+                            size: 14,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

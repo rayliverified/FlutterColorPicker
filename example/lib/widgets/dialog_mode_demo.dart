@@ -36,7 +36,7 @@ class _DialogModeDemoState extends State<DialogModeDemo> {
             child: const Text('Open Color Picker Dialog'),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _DialogVariant(
           label: 'Minimal',
           description: 'Just the color picker, no recent colors or presets.',
@@ -83,6 +83,7 @@ class _DialogVariant extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
+            height: 1.0,
             fontWeight: FontWeight.w600,
             color: SoftSaaSTokens.primaryText(brightness),
           ),
@@ -92,6 +93,7 @@ class _DialogVariant extends StatelessWidget {
           description,
           style: TextStyle(
             fontSize: 11,
+            height: 1.2,
             color: SoftSaaSTokens.tertiaryText(brightness),
           ),
         ),

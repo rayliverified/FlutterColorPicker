@@ -16,6 +16,7 @@ void main() {
 
     // Verify that the app builds without crashing.
     expect(find.text('Color Picker'), findsOneWidget);
-    expect(find.text('Soft SaaS UI demo'), findsOneWidget);
+    expect(find.text('Picker'), findsWidgets);
+    expect(find.text('Layers'), findsWidgets);
   });
 }

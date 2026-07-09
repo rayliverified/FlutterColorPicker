@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class UtilityFunctionsDemo extends StatelessWidget {
   final Color selectedColor;
 
-  const UtilityFunctionsDemo({
-    super.key,
-    required this.selectedColor,
-  });
+  const UtilityFunctionsDemo({super.key, required this.selectedColor});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +14,9 @@ class UtilityFunctionsDemo extends StatelessWidget {
       children: <Widget>[
         Text(
           'Utility Functions',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         _UtilityDemoItem(
@@ -28,11 +25,7 @@ class UtilityFunctionsDemo extends StatelessWidget {
         ),
         _UtilityDemoItem(
           label: 'Color to Hex (with alpha):',
-          value: colorToHex(
-            selectedColor,
-            withHashtag: true,
-            withAlpha: true,
-          ),
+          value: colorToHex(selectedColor, withHashtag: true, withAlpha: true),
         ),
         _UtilityDemoItem(
           label: 'Parse Hex "#FF00AA":',
@@ -68,10 +61,7 @@ class _UtilityDemoItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const _UtilityDemoItem({
-    required this.label,
-    required this.value,
-  });
+  const _UtilityDemoItem({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -88,14 +78,10 @@ class _UtilityDemoItem extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontFamily: 'monospace'),
-            ),
+            child: Text(value, style: const TextStyle(fontFamily: 'monospace')),
           ),
         ],
       ),
     );
   }
 }
-
