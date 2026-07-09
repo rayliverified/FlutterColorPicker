@@ -1,12 +1,12 @@
 // ignore_for_file: dangling_library_doc_comments, unused_field, unreachable_switch_default
 
-/// Soft SaaS UI Button Components
+/// Local demo button components.
 ///
-/// This file implements all button variants from the Soft SaaS UI design system:
-/// - SoftSaaSButton: Main button component (Primary, Secondary, Tertiary, Outline, Ghost, Destructive)
-/// - SoftSaaSIconButton: Icon-only button variant
+/// This file implements the button variants used by the example app:
+/// - SoftSaaSButton: Main button component.
+/// - SoftSaaSIconButton: Icon-only button variant.
 ///
-/// All buttons feature neumorphic shadows, smooth transitions, and full dark mode support.
+/// Buttons include shadows, smooth transitions, and dark mode support.
 
 import 'package:flutter/material.dart';
 import '../design_tokens.dart';
@@ -46,7 +46,7 @@ enum SoftSaaSButtonSize {
   large,
 }
 
-/// Soft SaaS UI Button Component
+/// Local demo button component
 ///
 /// A highly customizable button with multiple variants, sizes, and states.
 /// Supports neumorphic shadows, icons, loading states, and full dark mode.
@@ -444,7 +444,9 @@ class _SoftSaaSIconButtonState extends State<SoftSaaSIconButton> {
   }
 
   Color _getIconColor(Brightness brightness) {
-    if (_isHovered && widget.hoverIconColor != null) return widget.hoverIconColor!;
+    if (_isHovered && widget.hoverIconColor != null) {
+      return widget.hoverIconColor!;
+    }
     if (widget.iconColor != null) return widget.iconColor!;
 
     switch (widget.variant) {

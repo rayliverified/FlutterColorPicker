@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 

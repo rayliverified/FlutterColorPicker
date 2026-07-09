@@ -51,7 +51,10 @@ class SoftSaaSTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(SoftSaaSTokens.radiusXLarge),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         hintStyle: SoftSaaSTypography.bodyMediumTertiary(brightness),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -98,11 +101,15 @@ class SoftSaaSTheme {
       chipTheme: ChipThemeData(
         backgroundColor: SoftSaaSTokens.tertiaryBackground(brightness),
         deleteIconColor: SoftSaaSTokens.secondaryText(brightness),
-        disabledColor: SoftSaaSTokens.tertiaryBackground(brightness).withValues(alpha: 0.5),
+        disabledColor: SoftSaaSTokens.tertiaryBackground(
+          brightness,
+        ).withValues(alpha: 0.5),
         selectedColor: primary,
         secondarySelectedColor: primary.withValues(alpha: 0.1),
         padding: SoftSaaSTokens.badgePaddingMedium,
-        labelStyle: SoftSaaSTypography.badgeMedium(SoftSaaSTokens.primaryText(brightness)),
+        labelStyle: SoftSaaSTypography.badgeMedium(
+          SoftSaaSTokens.primaryText(brightness),
+        ),
         secondaryLabelStyle: SoftSaaSTypography.badgeMedium(Colors.white),
         brightness: brightness,
         shape: RoundedRectangleBorder(
@@ -125,7 +132,9 @@ class SoftSaaSTheme {
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: brightness == Brightness.light ? SoftSaaSTokens.gray800 : SoftSaaSTokens.gray700,
+          color: brightness == Brightness.light
+              ? SoftSaaSTokens.gray800
+              : SoftSaaSTokens.gray700,
           borderRadius: BorderRadius.circular(SoftSaaSTokens.radiusLarge),
         ),
         textStyle: SoftSaaSTypography.bodySmall(Brightness.dark),

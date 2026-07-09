@@ -1,9 +1,8 @@
 // ignore_for_file: dangling_library_doc_comments
 
-/// Soft SaaS UI Panel Component
+/// Local demo panel component.
 ///
-/// Flat bordered container matching the production PanelCard pattern
-/// from file_inventory_ui. White background, 1px primaryBorder, no shadow.
+/// Flat bordered container used by the example app.
 ///
 /// Use [SoftSaaSPanel] for a static container with optional title header.
 /// Use [SoftSaaSPanel.expandable] for a collapsible panel with toggle.
@@ -17,11 +16,10 @@ import '../neumorphic_shadows.dart';
 // PANEL
 // ══════════════════════════════════════════════════════════════════════
 
-/// Soft SaaS UI Panel — flat bordered container.
+/// Local demo panel — flat bordered container.
 ///
-/// Production Panel/Card pattern: white background, 1px primaryBorder,
-/// 10px radius corners, no shadow. Matches the PanelCard style from
-/// file_inventory_ui.
+/// Panel/card pattern: background, border, rounded corners, and optional
+/// elevation for the demo app.
 class SoftSaaSPanel extends StatelessWidget {
   const SoftSaaSPanel({
     super.key,
@@ -111,8 +109,8 @@ class _PanelBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final radius = panel.borderRadius ?? 10;
-    final bg = panel.backgroundColor ??
-        SoftSaaSTokens.primaryBackground(brightness);
+    final bg =
+        panel.backgroundColor ?? SoftSaaSTokens.primaryBackground(brightness);
     final border = SoftSaaSTokens.primaryBorder(brightness);
 
     return Container(
@@ -131,8 +129,7 @@ class _PanelBody extends StatelessWidget {
           if (panel.title != null)
             Container(
               width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: border, width: 1)),
               ),
@@ -167,8 +164,7 @@ class _PanelBody extends StatelessWidget {
                             panel.subtitle!,
                             style: TextStyle(
                               fontSize: 10.5,
-                              color:
-                                  SoftSaaSTokens.tertiaryText(brightness),
+                              color: SoftSaaSTokens.tertiaryText(brightness),
                             ),
                           ),
                         ],
@@ -227,7 +223,8 @@ class _ExpandablePanelState extends State<_ExpandablePanel> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final radius = widget.panel.borderRadius ?? 10;
-    final bg = widget.panel.backgroundColor ??
+    final bg =
+        widget.panel.backgroundColor ??
         SoftSaaSTokens.primaryBackground(brightness);
     final border = SoftSaaSTokens.primaryBorder(brightness);
     final headerRadius = _isOpen
@@ -287,8 +284,7 @@ class _ExpandablePanelState extends State<_ExpandablePanel> {
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               height: 1.0,
-                              color:
-                                  SoftSaaSTokens.primaryText(brightness),
+                              color: SoftSaaSTokens.primaryText(brightness),
                             ),
                           ),
                           if (widget.panel.subtitle != null) ...[
@@ -297,9 +293,7 @@ class _ExpandablePanelState extends State<_ExpandablePanel> {
                               widget.panel.subtitle!,
                               style: TextStyle(
                                 fontSize: 10.5,
-                                color: SoftSaaSTokens.tertiaryText(
-                                  brightness,
-                                ),
+                                color: SoftSaaSTokens.tertiaryText(brightness),
                               ),
                             ),
                           ],
@@ -324,8 +318,7 @@ class _ExpandablePanelState extends State<_ExpandablePanel> {
               ),
             ),
           ),
-          if (_isOpen)
-            _wrapBody(widget.panel.child, widget.panel.expandBody),
+          if (_isOpen) _wrapBody(widget.panel.child, widget.panel.expandBody),
         ],
       ),
     );

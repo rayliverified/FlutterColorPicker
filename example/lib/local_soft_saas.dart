@@ -1,7 +1,7 @@
-/// Minimal local Soft SaaS UI subset used by the standalone example.
+/// Minimal local styling subset used by the standalone example.
 ///
-/// This barrel intentionally exports only the components/tokens referenced by
-/// `example/lib`, avoiding a vendored copy of the full `soft_saas_ui` package.
+/// This barrel intentionally exports only the components and tokens referenced
+/// by `example/lib`, keeping the demo self-contained.
 library;
 
 export 'local_soft_saas/soft_saas/design_tokens.dart';

@@ -78,7 +78,7 @@ class ColorPresetsView extends StatefulWidget {
 
   /// Whether to show the inline presets label/dropdown above the swatches.
   ///
-  /// Set to false when embedded in a titled container such as SoftSaaSPanel.
+  /// Set to false when embedded in a titled container.
   final bool showLabel;
 
   const ColorPresetsView({
@@ -406,7 +406,7 @@ class RecentColorsView extends StatelessWidget {
 
   /// Whether to show the inline label above the swatches.
   ///
-  /// Set to false when embedded in a titled container such as SoftSaaSPanel.
+  /// Set to false when embedded in a titled container.
   final bool showLabel;
 
   const RecentColorsView({

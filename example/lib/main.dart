@@ -1,4 +1,4 @@
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'local_soft_saas.dart';
@@ -26,7 +26,7 @@ class _ColorPickerDemoAppState extends State<ColorPickerDemoApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Color Picker · Soft SaaS UI',
+      title: 'Flutter Color Picker',
       debugShowCheckedModeBanner: false,
       theme: SoftSaaSTheme.light(),
       darkTheme: SoftSaaSTheme.dark(),

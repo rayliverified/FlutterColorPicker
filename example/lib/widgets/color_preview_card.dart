@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 import 'package:flutter/material.dart';
 
 /// Widget that displays the selected color or image preview.

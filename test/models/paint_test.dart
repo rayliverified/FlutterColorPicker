@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Paint;
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 
 void main() {
   group('Paint Model Tests', () {

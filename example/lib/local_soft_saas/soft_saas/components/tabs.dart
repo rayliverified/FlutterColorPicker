@@ -1,20 +1,15 @@
-// Soft SaaS UI Tabs Component
+// Local demo tabs component.
 //
-// Compact, left-aligned, scrollable tab strip. The selected tab uses the same
-// elevated trigger styling as `SoftSaaSDropdown.elevated` (primary background
-// + 1px border + subtle 4-layer shadow + 7px radius). Inactive tabs are ghost
-// with a faint hover overlay.
+// Compact, left-aligned, scrollable tab strip. The selected tab uses a
+// primary-tinted background, subtle border, shadow, and rounded corners.
+// Inactive tabs are ghost-style with a faint hover overlay.
 
 import 'package:flutter/material.dart';
 import '../design_tokens.dart';
 
 /// A single tab entry.
 class SoftSaaSTab {
-  const SoftSaaSTab({
-    required this.label,
-    this.icon,
-    this.subtitle,
-  });
+  const SoftSaaSTab({required this.label, this.icon, this.subtitle});
 
   final String label;
   final IconData? icon;

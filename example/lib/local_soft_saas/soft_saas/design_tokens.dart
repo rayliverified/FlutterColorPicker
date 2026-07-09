@@ -1,6 +1,6 @@
 // ignore_for_file: dangling_library_doc_comments
 
-/// Minimal Soft SaaS design tokens used by the standalone color picker example.
+/// Minimal design tokens used by the standalone color picker example.
 
 import 'package:flutter/material.dart';
 
@@ -65,19 +65,37 @@ class SoftSaaSTokens {
   static const iconSizeLarge = 18.0;
   static const iconSizeXL = 24.0;
 
-  static const buttonPaddingSmall = EdgeInsets.symmetric(horizontal: 8, vertical: 4);
-  static const buttonPaddingMedium = EdgeInsets.symmetric(horizontal: 12, vertical: 6);
-  static const buttonPaddingLarge = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
-  static const badgePaddingMedium = EdgeInsets.symmetric(horizontal: 10, vertical: 2);
+  static const buttonPaddingSmall = EdgeInsets.symmetric(
+    horizontal: 8,
+    vertical: 4,
+  );
+  static const buttonPaddingMedium = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 6,
+  );
+  static const buttonPaddingLarge = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 8,
+  );
+  static const badgePaddingMedium = EdgeInsets.symmetric(
+    horizontal: 10,
+    vertical: 2,
+  );
 
   static Color primaryBackground(Brightness brightness) =>
-      brightness == Brightness.light ? lightPrimaryBackground : darkPrimaryBackground;
+      brightness == Brightness.light
+      ? lightPrimaryBackground
+      : darkPrimaryBackground;
 
   static Color secondaryBackground(Brightness brightness) =>
-      brightness == Brightness.light ? lightSecondaryBackground : darkSecondaryBackground;
+      brightness == Brightness.light
+      ? lightSecondaryBackground
+      : darkSecondaryBackground;
 
   static Color tertiaryBackground(Brightness brightness) =>
-      brightness == Brightness.light ? lightTertiaryBackground : darkTertiaryBackground;
+      brightness == Brightness.light
+      ? lightTertiaryBackground
+      : darkTertiaryBackground;
 
   static Color primaryText(Brightness brightness) =>
       brightness == Brightness.light ? lightPrimaryText : darkPrimaryText;
@@ -92,7 +110,9 @@ class SoftSaaSTokens {
       brightness == Brightness.light ? lightPrimaryBorder : darkPrimaryBorder;
 
   static Color secondaryBorder(Brightness brightness) =>
-      brightness == Brightness.light ? lightSecondaryBorder : darkSecondaryBorder;
+      brightness == Brightness.light
+      ? lightSecondaryBorder
+      : darkSecondaryBorder;
 
   static Color primaryColor(Brightness brightness) =>
       brightness == Brightness.light ? primary : primaryDark;

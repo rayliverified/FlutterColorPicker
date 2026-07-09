@@ -7,7 +7,7 @@
 /// ## Getting Started
 ///
 /// ```dart
-/// import 'package:colorpicker/colorpicker.dart';
+/// import 'package:color_picker_plus/color_picker_plus.dart';
 ///
 /// ColorPicker(
 ///   color: selectedColor,

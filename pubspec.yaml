@@ -1,4 +1,4 @@
-name: colorpicker
+name: color_picker_plus
 description: Full-featured Flutter color picker with hex, HSV, alpha, gradients, presets, recent colors, and design-tool style controls.
 version: 1.0.0
 homepage: https://fluttercolorpicker.netlify.app/

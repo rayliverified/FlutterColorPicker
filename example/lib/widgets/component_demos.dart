@@ -1,4 +1,4 @@
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 import 'package:flutter/material.dart';
 
 /// Color tile (swatch) demonstration.

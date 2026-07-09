@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:colorpicker_example/main.dart';
+import 'package:color_picker_plus_example/main.dart';
 
 void main() {
   testWidgets('Color picker demo app smoke test', (WidgetTester tester) async {

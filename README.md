@@ -24,7 +24,7 @@ Try the Flutter web example: [fluttercolorpicker.netlify.app](https://fluttercol
 ### Simple Color Picking
 
 ```dart
-import 'package:colorpicker/colorpicker.dart';
+import 'package:color_picker_plus/color_picker_plus.dart';
 
 // Inline row with text inputs (like common design-tool inspectors)
 ColorPickerRow(
