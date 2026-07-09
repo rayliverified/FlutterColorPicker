@@ -1,0 +1,12 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - example/**  # Example needs updating to match new library structure
+
+linter:
+  rules:
+    avoid_print: false
+    prefer_single_quotes: true
+    require_trailing_commas: true
+
