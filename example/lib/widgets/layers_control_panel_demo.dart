@@ -171,7 +171,11 @@ class _LayersControlPanelDemoState extends State<LayersControlPanelDemo> {
       decoration: BoxDecoration(
         color: SoftSaaSTokens.primaryBackground(brightness),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: SoftSaaSTokens.primaryBorder(brightness)),
+        border: Border.all(
+          color: SoftSaaSTokens.primaryBorder(
+            brightness,
+          ).withValues(alpha: 0.72),
+        ),
       ),
       child: child,
     );

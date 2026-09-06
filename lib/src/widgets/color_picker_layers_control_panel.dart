@@ -140,7 +140,10 @@ class ColorPickerLayersControlPanel extends StatelessWidget {
     this.currentPageIndex,
     this.onPageSwitcherTapped,
     this.readOnly = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    // Keep the bordered control group visually aligned with compact color
+    // inputs (hex/opacity): the dropdown trigger already contributes 4px of
+    // vertical padding, so the wrapper only needs a small inset.
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     this.showDivider = true,
   });
 
@@ -233,15 +236,26 @@ class ColorPickerLayersControlPanel extends StatelessWidget {
         child: Tooltip(
           message: pageIndex == 0 ? 'Library' : 'Editor',
           waitDuration: const Duration(seconds: 1),
-          child: IconButton(
-            icon: Icon(
-              pageIndex == 0 ? Icons.book : Icons.gps_not_fixed,
-              size: 14,
+          child: SizedBox.square(
+            dimension: 24,
+            child: IconButton(
+              icon: Icon(
+                pageIndex == 0 ? Icons.book : Icons.gps_not_fixed,
+                size: 14,
+              ),
+              color: colorScheme.secondary,
+              splashRadius: 12,
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              style: IconButton.styleFrom(
+                minimumSize: Size.zero,
+                fixedSize: const Size.square(24),
+                maximumSize: const Size.square(24),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: readOnly ? null : onPageSwitcherTapped,
+              constraints: const BoxConstraints.tightFor(width: 24, height: 24),
             ),
-            color: colorScheme.secondary,
-            splashRadius: 12,
-            onPressed: readOnly ? null : onPageSwitcherTapped,
-            constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           ),
         ),
       ),

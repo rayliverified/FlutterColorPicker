@@ -109,7 +109,9 @@ class _LayersListDemoState extends State<LayersListDemo> {
                       color: SoftSaaSTokens.primaryBackground(brightness),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: SoftSaaSTokens.primaryBorder(brightness),
+                        color: SoftSaaSTokens.primaryBorder(
+                          brightness,
+                        ).withValues(alpha: 0.72),
                       ),
                     ),
                   ),
@@ -151,7 +153,11 @@ class _LayerPreviewCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: SoftSaaSTokens.secondaryBackground(brightness),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: SoftSaaSTokens.primaryBorder(brightness)),
+            border: Border.all(
+              color: SoftSaaSTokens.primaryBorder(
+                brightness,
+              ).withValues(alpha: 0.72),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

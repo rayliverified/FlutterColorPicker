@@ -282,14 +282,14 @@ class _LayerListItemState extends State<_LayerListItem> {
     return Material(
       color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         child: InkWell(
           onTap: widget.onTap,
           borderRadius: BorderRadius.circular(7),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
-            height: 44,
+            height: 36,
             padding: widget.itemPadding,
             decoration: BoxDecoration(
               color: _getBackgroundColor(context),
@@ -305,14 +305,14 @@ class _LayerListItemState extends State<_LayerListItem> {
                       index: widget.index,
                       child: Icon(
                         Icons.drag_indicator,
-                        size: 16,
+                        size: 14,
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white.withValues(alpha: 0.7)
                             : Colors.black.withValues(alpha: 0.7),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                 ],
                 // Color swatch (for solid and gradient layers)
                 if (canShowColorSwatch) ...[
@@ -321,6 +321,7 @@ class _LayerListItemState extends State<_LayerListItem> {
                     onPaintChanged: (paint) {
                       widget.onLayerUpdated(widget.layer.withPaint(paint));
                     },
+                    size: 20,
                     showBlendMode: true,
                     showPageSwitcher: true,
                     showRecentColors: widget.showRecentColors,
@@ -328,7 +329,7 @@ class _LayerListItemState extends State<_LayerListItem> {
                     showPresetLibrary: widget.presetLibrary != null,
                     presetLibrary: widget.presetLibrary,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                 ],
                 // Layer name
                 Expanded(
@@ -347,7 +348,7 @@ class _LayerListItemState extends State<_LayerListItem> {
                 // Visibility toggle button (only if enabled)
                 if (widget.enableVisibility)
                   Padding(
-                    padding: const EdgeInsets.only(right: 4, left: 8),
+                    padding: const EdgeInsets.only(right: 3, left: 6),
                     child: Tooltip(
                       message: widget.layer.visible ? 'Hide' : 'Show',
                       child: InkWell(
@@ -360,7 +361,7 @@ class _LayerListItemState extends State<_LayerListItem> {
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(3),
                           child: Icon(
                             widget.layer.visible
                                 ? Icons.visibility_outlined
@@ -371,7 +372,7 @@ class _LayerListItemState extends State<_LayerListItem> {
                                   ).colorScheme.onSurface.withValues(alpha: 0.5)
                                 : Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.3),
-                            size: 14,
+                            size: 13,
                           ),
                         ),
                       ),
