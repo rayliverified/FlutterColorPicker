@@ -815,7 +815,7 @@ class _PrimitivesTabState extends State<_PrimitivesTab> {
                   SoftSaaSPanel(
                     title: 'Recent Colors',
                     subtitle: 'Persisted recent color swatches',
-                    icon: LucideIcons.history,
+                    icon: LucideIcons.rotate_ccw_clock,
                     child: Padding(
                       padding: _panelBodyPadding,
                       child: RecentColorsSection(

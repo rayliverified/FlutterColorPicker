@@ -37,17 +37,11 @@ class ColorImagePickerDemo extends StatefulWidget {
 class _ColorImagePickerDemoState extends State<ColorImagePickerDemo> {
   Future<void> _pickImage() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        withData: true,
-        allowMultiple: false,
-      );
+      final file = await FilePicker.pickFile(type: FileType.image);
 
-      if (result != null && result.files.single.bytes != null) {
-        final bytes = result.files.single.bytes!;
-        final name = result.files.single.name;
-
-        widget.onImageSelected(bytes, name);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        widget.onImageSelected(bytes, file.name);
       }
     } catch (e) {
       if (mounted) {
